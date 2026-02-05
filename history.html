@@ -524,12 +524,13 @@
         
         stopBtn.addEventListener('click', stop);
         
-        closeBtn.addEventListener('click', () => {
-            if (confirm('നിർത്തി പുറത്തുകടക്കണോ?')) {
-                stop();
-                window.history.back();
-            }
-        });
+closeBtn.addEventListener('click', () => {
+    if (confirm('നിർത്തി പുറത്തുകടക്കണോ?')) {
+        stop();
+        window.close();
+    }
+});
+
         
         // Speed control
         speedBtns.forEach(btn => {
