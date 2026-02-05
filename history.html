@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>തൊളിക്കുഴി ചിരട്ട ശാസ്താ ക്ഷേത്രം - ചരിത്രം</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@300;400;600;700&family=Cinzel:wght@600&display=swap');
+        
+        body {
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .text-container {
+            height: 70vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .scrolling-text {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transition: transform 0.1s linear;
+        }
+        
+        .image-container {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .temple-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        
+        .temple-image.active {
+            opacity: 1;
+        }
+        
+        .control-btn {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .close-btn {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .progress-bar {
+            transition: width 0.1s linear;
+        }
+        
+        .highlight-text {
+            background: linear-gradient(120deg, #fbbf24 0%, #f59e0b 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 1;
+            }
+        }
+        
+        .pulse-animation {
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+
+
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+    <!-- Close Button -->
+    <button id="closeBtn" class="close-btn p-3 rounded-full text-red-600 hover:bg-red-50 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+
+    <div class="max-w-md mx-auto min-h-screen bg-white shadow-2xl">
+        <!-- Header -->
+        <div class="gradient-bg text-white p-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-2">
+                <svg class="w-8 h-8 text-amber-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                    <circle cx="12" cy="12" r="3" fill="white"/>
+                </svg>
+                <h1 class="text-xl font-bold">തൊളിക്കുഴി ചിരട്ട ശാസ്താ ക്ഷേത്രം</h1>
+            </div>
+            <p class="text-sm opacity-90">ചരിത്രവും വിശ്വാസവും</p>
+        </div>
+
+        <!-- Image Slider -->
+        <div class="image-container">
+            <img class="temple-image active" src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800&q=80" alt="Temple 1">
+            <img class="temple-image" src="https://images.unsplash.com/photo-1548013146-72479768bada?w=800&q=80" alt="Temple 2">
+            <img class="temple-image" src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&q=80" alt="Temple 3">
+            <img class="temple-image" src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80" alt="Temple 4">
+            <img class="temple-image" src="https://images.unsplash.com/photo-1606660265514-358ebbadc80d?w=800&q=80" alt="Temple 5">
+            
+            <!-- Image overlay gradient -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+        </div>
+
+       <!-- Progress Bar -->
+<div class="bg-gray-200 h-1 sticky top-0 z-10">
+    <div id="progressBar"
+         class="bg-gradient-to-r from-purple-600 to-indigo-600 h-full transition-all duration-300"
+         style="width: 0%">
+    </div>
+</div>
+
+<!-- Text Container -->
+<div class="bg-gradient-to-b from-white to-amber-50/30 p-6
+            max-h-screen overflow-y-auto">
+
+    <div id="scrollingText"
+         class="space-y-6 text-gray-800 leading-relaxed">
+
+        <div class="text-section">
+            <h2 class="text-2xl font-bold mb-4 text-center">
+                തൊളിക്കുഴി ചിരട്ട ശാസ്താ ക്ഷേത്രം
+            </h2>
+
+            <p class="text-lg leading-loose mb-4">
+                തിരുവനന്തപുരം ജില്ലയിലെ തൊളിക്കുഴിയിൽ സ്ഥിതിചെയ്യുന്ന പ്രശസ്തമായ ശാസ്താ ക്ഷേത്രമാണ്
+                തൊളിക്കുഴി ചിരട്ട ശാസ്താ ക്ഷേത്രം. ഇവിടെ ആരാധിക്കപ്പെടുന്ന ശാസ്താ ദേവൻ
+                ശക്തനും കാവൽദേവനുമായാണ് വിശ്വാസം.
+            </p>
+
+            <p class="text-lg leading-loose mb-4">
+                ഗ്രാമീണ ഭക്തിപാരമ്പര്യങ്ങളുമായി ചേർന്നുനിൽക്കുന്ന ഈ ക്ഷേത്രം,
+                രോഗശമനം, ദോഷനിവാരം, കുടുംബക്ഷേമം എന്നിവയ്ക്ക്
+                പ്രത്യേക പ്രാധാന്യമുള്ളതായാണ് വിശ്വാസികൾ കരുതുന്നത്.
+            </p>
+        </div>
+
+        <div class="text-section">
+            <h3 class="text-xl font-bold mb-4 text-center text-purple-700">
+                ചരിത്രം (ചുരുക്കമായി)
+            </h3>
+
+            <p class="text-lg leading-loose mb-4">
+                തൊളിക്കുഴി ചിരട്ട ശാസ്താ ക്ഷേത്രത്തിന്റെ ചരിത്രം വ്യക്തമായ രേഖകളിൽ
+                ലഭ്യമല്ലെങ്കിലും, ഗ്രാമീണ ദൈവാരാധനാ പാരമ്പര്യത്തിന്റെ ഭാഗമായാണ്
+                ഈ ക്ഷേത്രം രൂപപ്പെട്ടതെന്ന് വിശ്വസിക്കപ്പെടുന്നു.
+            </p>
+
+            <p class="text-lg leading-loose mb-4">
+                ശാസ്താവിനെ കാവൽദേവനായി ആരാധിക്കുന്ന ദക്ഷിണ കേരളത്തിലെ
+                പഴയ വിശ്വാസധാരകളുമായി ഇതിന്റെ ഉത്ഭവം ബന്ധപ്പെട്ടു കിടക്കുന്നു.
+            </p>
+        </div>
+
+        <div class="text-section">
+            <p class="text-lg leading-loose mb-4">
+                "ചിരട്ട ശാസ്താ" എന്ന നാമം, ചിരട്ട, കല്ല്, കാവ് തുടങ്ങിയ
+                പ്രകൃതിസന്നിധികളിൽ നടന്നിരുന്ന ആദിമാരാധനയെ സൂചിപ്പിക്കുന്നു.
+            </p>
+
+            <p class="text-lg leading-loose mb-4">
+                വനാതിർത്തികളിലും ഗ്രാമപ്രവേശന കവാടങ്ങളിലുമാണ്
+                ശാസ്താവിനെ കാവൽദേവനായി പ്രതിഷ്ഠിച്ചിരുന്നത്.
+            </p>
+        </div>
+
+        <div class="text-section">
+            <p class="text-lg leading-loose mb-4">
+                കാലക്രമേണ, ജനവിശ്വാസങ്ങളും വഴിപാടുകളും ശക്തമാകുകയും
+                ഇന്ന് കാണുന്ന ക്ഷേത്രരൂപത്തിലേക്ക് ഇത് വളരുകയും ചെയ്തു.
+            </p>
+
+            <p class="text-lg leading-loose mb-4">
+                രോഗശമനം, ദോഷനിവാരം, സന്താനസൗഖ്യം എന്നിവയ്ക്കായി
+                ശാസ്താവിനെ പ്രാർത്ഥിക്കുന്ന പതിവ് ഏറെ പഴക്കമുള്ളതാണ്.
+            </p>
+        </div>
+
+        <div class="text-center mt-12 mb-8">
+            <p class="text-2xl font-bold">
+                ശാസ്താവേ ശരണം 🙏
+            </p>
+        </div>
+
+        <!-- Extra scroll space -->
+        <div class="h-32"></div>
+
+    </div>
+</div>
+
+
+        <!-- Control Panel -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg shadow-2xl border-t border-gray-200">
+            <div class="max-w-md mx-auto p-4">
+                <!-- Status Display -->
+                <div id="statusDisplay" class="text-center mb-3">
+                    <p class="text-sm font-semibold text-gray-700">തയ്യാറാണ്</p>
+                    <p class="text-xs text-gray-500" id="timeDisplay">00:00 / 00:00</p>
+                </div>
+
+                <!-- Main Controls -->
+                <div class="flex items-center justify-center space-x-4 mb-3">
+                    <!-- Play/Pause Button -->
+                    <button id="playPauseBtn" class="control-btn bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl">
+                        <svg id="playIcon" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <svg id="pauseIcon" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Stop Button -->
+                    <button id="stopBtn" class="control-btn bg-red-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl opacity-50" disabled>
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 6h12v12H6z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Speed Control -->
+                <div class="flex items-center justify-center space-x-3 text-sm">
+                    <span class="text-gray-600">വേഗത:</span>
+                    <button class="speed-btn px-3 py-1 rounded-full bg-gray-200 text-gray-700 hover:bg-purple-100" data-speed="0.75">0.75x</button>
+                    <button class="speed-btn px-3 py-1 rounded-full bg-purple-600 text-white" data-speed="1">1x</button>
+                    <button class="speed-btn px-3 py-1 rounded-full bg-gray-200 text-gray-700 hover:bg-purple-100" data-speed="1.25">1.25x</button>
+                    <button class="speed-btn px-3 py-1 rounded-full bg-gray-200 text-gray-700 hover:bg-purple-100" data-speed="1.5">1.5x</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const SCROLL_DURATION = 180000; // 3 minutes in milliseconds
+        const IMAGE_CHANGE_INTERVAL = 8000; // Change image every 8 seconds
+        
+        // Elements
+        const scrollingText = document.getElementById('scrollingText');
+        const progressBar = document.getElementById('progressBar');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const speedBtns = document.querySelectorAll('.speed-btn');
+        const images = document.querySelectorAll('.temple-image');
+        const textSections = document.querySelectorAll('.text-section');
+        
+        // State
+        let isPlaying = false;
+        let isPaused = false;
+        let startTime = null;
+        let pausedTime = 0;
+        let animationFrame = null;
+        let currentSpeed = 1;
+        let currentImageIndex = 0;
+        let imageInterval = null;
+        let speechSynth = window.speechSynthesis;
+        let currentUtterance = null;
+        let textSegments = [];
+        let currentSegmentIndex = 0;
+        
+        // Prepare text segments for speech
+        function prepareTextSegments() {
+            textSegments = [];
+            textSections.forEach(section => {
+                const paragraphs = section.querySelectorAll('p, h2, h3');
+                paragraphs.forEach(p => {
+                    const text = p.textContent.trim();
+                    if (text) {
+                        textSegments.push({
+                            text: text,
+                            element: p
+                        });
+                    }
+                });
+            });
+        }
+        
+        // Speak text with Malayalam voice
+        function speakText() {
+            if (currentSegmentIndex >= textSegments.length) {
+                currentSegmentIndex = 0;
+            }
+            
+            const segment = textSegments[currentSegmentIndex];
+            currentUtterance = new SpeechSynthesisUtterance(segment.text);
+            
+            // Try to use Malayalam voice
+            const voices = speechSynth.getVoices();
+            const malayalamVoice = voices.find(voice => 
+                voice.lang === 'ml-IN' || voice.lang.startsWith('ml')
+            );
+            
+            if (malayalamVoice) {
+                currentUtterance.voice = malayalamVoice;
+            }
+            
+            currentUtterance.rate = currentSpeed;
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 1;
+            
+            // Highlight current text
+            segment.element.style.background = 'rgba(251, 191, 36, 0.2)';
+            segment.element.style.padding = '0.5rem';
+            segment.element.style.borderRadius = '0.5rem';
+            
+            currentUtterance.onend = () => {
+                segment.element.style.background = '';
+                segment.element.style.padding = '';
+                currentSegmentIndex++;
+                if (isPlaying && currentSegmentIndex < textSegments.length) {
+                    speakText();
+                }
+            };
+            
+            speechSynth.speak(currentUtterance);
+        }
+        
+        // Animation function
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime + pausedTime;
+            const progress = Math.min(elapsed / (SCROLL_DURATION / currentSpeed), 1);
+            
+            // Update progress bar
+            progressBar.style.width = (progress * 100) + '%';
+            
+            // Update time display
+            const currentTime = Math.floor(elapsed / 1000);
+            const totalTime = Math.floor(SCROLL_DURATION / 1000 / currentSpeed);
+            const currentMin = Math.floor(currentTime / 60);
+            const currentSec = currentTime % 60;
+            const totalMin = Math.floor(totalTime / 60);
+            const totalSec = totalTime % 60;
+            timeDisplay.textContent = `${String(currentMin).padStart(2, '0')}:${String(currentSec).padStart(2, '0')} / ${String(totalMin).padStart(2, '0')}:${String(totalSec).padStart(2, '0')}`;
+            
+            // Calculate scroll position
+            const maxScroll = scrollingText.scrollHeight - scrollingText.parentElement.clientHeight;
+            const scrollPosition = progress * maxScroll;
+            scrollingText.style.transform = `translateY(-${scrollPosition}px)`;
+            
+            // Show text sections progressively
+            textSections.forEach((section, index) => {
+                const sectionProgress = progress * textSections.length;
+                if (sectionProgress >= index) {
+                    section.style.opacity = '1';
+                }
+            });
+            
+            if (progress < 1 && isPlaying) {
+                animationFrame = requestAnimationFrame(animate);
+            } else if (progress >= 1) {
+                stop();
+                statusDisplay.querySelector('p').textContent = 'പൂർത്തിയായി';
+                setTimeout(() => {
+                    window.history.back();
+                }, 1000);
+            }
+        }
+        
+        // Change images
+        function changeImage() {
+            images[currentImageIndex].classList.remove('active');
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            images[currentImageIndex].classList.add('active');
+        }
+        
+        // Play function
+        function play() {
+            if (!isPlaying) {
+                isPlaying = true;
+                isPaused = false;
+                closeBtn.classList.remove('hidden');
+                stopBtn.disabled = false;
+                stopBtn.classList.remove('opacity-50');
+                
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                statusDisplay.querySelector('p').textContent = 'പ്ലേ ചെയ്യുന്നു...';
+                
+                if (startTime === null) {
+                    prepareTextSegments();
+                    speakText();
+                } else {
+                    speechSynth.resume();
+                }
+                
+                animationFrame = requestAnimationFrame(animate);
+                
+                if (!imageInterval) {
+                    imageInterval = setInterval(changeImage, IMAGE_CHANGE_INTERVAL);
+                }
+            }
+        }
+        
+        // Pause function
+        function pause() {
+            if (isPlaying) {
+                isPlaying = false;
+                isPaused = true;
+                
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                statusDisplay.querySelector('p').textContent = 'താൽക്കാലികമായി നിർത്തി';
+                
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                }
+                
+                speechSynth.pause();
+                
+                if (imageInterval) {
+                    clearInterval(imageInterval);
+                    imageInterval = null;
+                }
+                
+                // Calculate paused time
+                const now = performance.now();
+                if (startTime) {
+                    pausedTime = now - startTime + pausedTime;
+                    startTime = null;
+                }
+            }
+        }
+        
+        // Stop function
+        function stop() {
+            isPlaying = false;
+            isPaused = false;
+            startTime = null;
+            pausedTime = 0;
+            currentSegmentIndex = 0;
+            
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            statusDisplay.querySelector('p').textContent = 'നിർത്തി';
+            stopBtn.disabled = true;
+            stopBtn.classList.add('opacity-50');
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+            
+            speechSynth.cancel();
+            
+            if (imageInterval) {
+                clearInterval(imageInterval);
+                imageInterval = null;
+            }
+            
+            // Reset UI
+            scrollingText.style.transform = 'translateY(0)';
+            progressBar.style.width = '0%';
+            timeDisplay.textContent = '00:00 / 00:00';
+            
+            textSections.forEach(section => {
+                section.style.opacity = '0';
+                section.querySelectorAll('p, h2, h3').forEach(el => {
+                    el.style.background = '';
+                    el.style.padding = '';
+                });
+            });
+            
+            // Reset images
+            images.forEach((img, index) => {
+                img.classList.remove('active');
+                if (index === 0) img.classList.add('active');
+            });
+            currentImageIndex = 0;
+        }
+        
+        // Event Listeners
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pause();
+            } else {
+                play();
+            }
+        });
+        
+        stopBtn.addEventListener('click', stop);
+        
+        closeBtn.addEventListener('click', () => {
+            if (confirm('നിർത്തി പുറത്തുകടക്കണോ?')) {
+                stop();
+                window.history.back();
+            }
+        });
+        
+        // Speed control
+        speedBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                speedBtns.forEach(b => {
+                    b.classList.remove('bg-purple-600', 'text-white');
+                    b.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                btn.classList.add('bg-purple-600', 'text-white');
+                btn.classList.remove('bg-gray-200', 'text-gray-700');
+                
+                currentSpeed = parseFloat(btn.dataset.speed);
+                
+                if (currentUtterance && speechSynth.speaking) {
+                    const wasPlaying = isPlaying;
+                    speechSynth.cancel();
+                    if (wasPlaying) {
+                        setTimeout(() => speakText(), 100);
+                    }
+                }
+            });
+        });
+        
+        // Load voices
+        if (speechSynth.onvoiceschanged !== undefined) {
+            speechSynth.onvoiceschanged = () => {
+                speechSynth.getVoices();
+            };
+        }
+        
+        // Prevent accidental navigation
+        window.addEventListener('beforeunload', (e) => {
+            if (isPlaying) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
