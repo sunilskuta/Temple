@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Professional Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="Tfbc.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-ring': 'pulseRing 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'success-bounce': 'successBounce 0.6s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        pulseRing: {
+                            '0%': { transform: 'scale(0.33)' },
+                            '40%, 50%': { opacity: '1' },
+                            '100%': { opacity: '0', transform: 'scale(1.33)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        successBounce: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.1)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .green-gradient {
+            background: linear-gradient(135deg, #064e3b 0%, #059669 30%, #10b981 70%, #34d399 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+            outline: none;
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .input-field:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.08;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .shape:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            width: 80px;
+            height: 80px;
+            background: #10b981;
+            border-radius: 50%;
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            top: 60%;
+            right: 10%;
+            width: 60px;
+            height: 60px;
+            background: #34d399;
+            border-radius: 30%;
+            animation-delay: 2s;
+        }
+        
+        .shape:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            width: 40px;
+            height: 40px;
+            background: #059669;
+            border-radius: 20%;
+            animation-delay: 4s;
+        }
+        
+        .shape:nth-child(4) {
+            top: 30%;
+            right: 30%;
+            width: 30px;
+            height: 30px;
+            background: #6ee7b7;
+            border-radius: 50%;
+            animation-delay: 3s;
+        }
+        
+        .logo-glow {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .form-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #10b981, #34d399, #6ee7b7, #10b981);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-10px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(calc(100vh + 50px)) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+    </style>
+</head>
+
+<body class="green-gradient min-h-screen flex items-center justify-center p-6 relative">
+    <!-- Floating Background Shapes -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="form-container glass-effect rounded-2xl p-8 w-full max-w-md shadow-2xl animate-fade-in">
+        <!-- Login Form -->
+        <div id="loginForm" class="space-y-6">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="w-14 h-14 bg-white logo-glow rounded-full flex items-center justify-center shadow-lg">
+                        <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="text-white text-2xl font-semibold mb-2">Welcome Back</h1>
+                <p class="text-green-100 text-sm">Sign in to access your account</p>
+            </div>
+            
+            <!-- Form -->
+            <form id="loginFormElement" class="space-y-5">
+                <div>
+                    <label for="username" class="block text-white font-medium text-sm mb-2 transition-colors duration-300">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        required
+                        class="input-field w-full px-4 py-3 rounded-lg text-gray-800 placeholder-gray-500"
+                        placeholder="Enter your username"
+                    >
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-white font-medium text-sm mb-2 transition-colors duration-300">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required
+                        class="input-field w-full px-4 py-3 rounded-lg text-gray-800 placeholder-gray-500"
+                        placeholder="Enter your password"
+                    >
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="btn-primary w-full py-3.5 text-white font-semibold rounded-lg transition-all duration-300 relative overflow-hidden"
+                    id="loginBtn"
+                >
+                    <span id="btnText">Sign In</span>
+                    <div id="btnSpinner" class="loading-spinner hidden absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                </button>
+            </form>
+            
+            <!-- Message -->
+            <div id="message" class="hidden px-4 py-3 rounded-lg text-white text-sm font-medium text-center opacity-0 transition-all duration-300"></div>
+            
+            <!-- Additional Links -->
+            <div class="text-center pt-4">
+                <p class="text-green-100 text-xs">
+                    Need help? <a href="#" class="text-white hover:text-green-200 hover:underline font-medium transition-colors duration-300">Contact Support</a>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Success Screen -->
+        <div id="successScreen" class="hidden text-center animate-slide-up">
+            <div class="mb-6">
+                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-success-bounce logo-glow">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h2 class="text-white text-xl font-semibold mb-2">Login Successful!</h2>
+                <p class="text-green-100 text-sm mb-6">Redirecting you to your dashboard...</p>
+            </div>
+            
+            <div class="flex justify-center">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    </div>
+   <div id="confettiContainer" class="confetti-container"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+
+    <script>
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // DOM elements
+        const loginForm = document.getElementById('loginFormElement');
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const messageDiv = document.getElementById('message');
+        const loginFormDiv = document.getElementById('loginForm');
+        const successScreen = document.getElementById('successScreen');
+
+        // Global variables
+        let currentUser = null;
+        let role = "";
+        let userId = "";
+        let userData = {};
+
+        // Authentication function using Firebase
+        async function authenticateUser(username, password) {
+            try {
+                // Query Firestore for user with matching username
+                const usersRef = db.collection('users');
+                const query = usersRef.where('username', '==', username);
+                const snapshot = await query.get();
+
+                if (snapshot.empty) {
+                    return { success: false, message: "User not found. Please check your username." };
+                }
+
+                // Loop through matching documents
+                for (const doc of snapshot.docs) {
+                    const userDocData = doc.data();
+
+                    // Check password
+                    if (userDocData.password !== password) {
+                        continue; // Not matching password, check next doc
+                    }
+
+                    // Check active status
+                    if (userDocData.isActive !== "active") {
+                        return { success: false, message: "Account is inactive. Please contact support." };
+                    }
+
+                    // Store user data
+                    currentUser = userDocData;
+                    role = userDocData.role;
+                    userId = userDocData.id;
+                    userData = userDocData;
+
+                    // Store in sessionStorage (if available)
+                    try {
+                        sessionStorage.setItem('userRole', role);
+                        sessionStorage.setItem('userId', userId);
+                        sessionStorage.setItem('userData', JSON.stringify(userData));
+                        sessionStorage.setItem('isLogin', 'true');
+                    } catch (e) {
+                        // SessionStorage not available (like in Claude artifacts)
+                        console.log('SessionStorage not available, using memory storage');
+                    }
+
+                    return { success: true, message: "Welcome back! Login successful." };
+                }
+
+                // If we got here, password was wrong
+                return { success: false, message: "Invalid password. Please try again." };
+
+            } catch (error) {
+                console.error('Authentication error:', error);
+                return { success: false, message: "Connection error. Please check your internet and try again." };
+            }
+        }
+
+        // Show message function
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `px-4 py-3 rounded-lg text-white text-sm font-medium text-center transition-all duration-300 ${type === 'success' ? 'success-message' : 'error-message'}`;
+            messageDiv.classList.remove('hidden', 'opacity-0');
+            messageDiv.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                messageDiv.classList.remove('opacity-100');
+                messageDiv.classList.add('opacity-0');
+                setTimeout(() => messageDiv.classList.add('hidden'), 300);
+            }, 3000);
+        }
+
+        // Login redirect function (fixed from your original)
+        function redirectToRole() {
+            // Role-based redirects
+            const redirects = {
+                'admin': `adminPanel.html?role=${role}&userId=${userId}`,
+                'operator': `operatorPanel.html?role=${role}&userId=${userId}`,
+                'deliveryStaff': `deliveryStaffPage.html?staffId=${userId}`,
+                'warehouseManager': `wareHousePanel.html?staffId=${userId}`,
+                'packingStaff': `orderPacking.html`
+            };
+            
+            const redirectUrl = redirects[role];
+            
+            if (redirectUrl) {
+                // Show success screen first
+                loginFormDiv.classList.add('hidden');
+                successScreen.classList.remove('hidden');
+                
+                // Redirect after 3 seconds
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 3000);
+            } else {
+                showMessage('Unknown role. Please contact support.', 'error');
+                // Reset form
+                setTimeout(() => {
+                    successScreen.classList.add('hidden');
+                    loginFormDiv.classList.remove('hidden');
+                    resetForm();
+                }, 3000);
+            }
+        }
+
+        // Reset form function
+        function resetForm() {
+            loginForm.reset();
+            currentUser = null;
+            role = "";
+            userId = "";
+            userData = {};
+            loginBtn.disabled = false;
+            btnText.textContent = 'Sign In';
+            btnSpinner.classList.add('hidden');
+        }
+
+        // Form submit handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showMessage("Please fill in all fields", "error");
+                return;
+            }
+
+            // Show loading state
+            loginBtn.disabled = true;
+            btnText.textContent = 'Signing In...';
+            btnSpinner.classList.remove('hidden');
+
+            try {
+                const result = await authenticateUser(username, password);
+                
+                if (result.success) {
+                    showMessage(result.message, "success");
+                    
+                    // Additional confetti burst for successful login
+                    setTimeout(() => {
+                        createConfetti();
+                    }, 500);
+                    
+                    // Wait a moment then redirect
+                    setTimeout(() => {
+                        redirectToRole();
+                    }, 1000);
+                } else {
+                    showMessage(result.message, "error");
+                    resetForm();
+                }
+            } catch (error) {
+                showMessage("An unexpected error occurred. Please try again.", "error");
+                resetForm();
+            }
+        });
+
+        // Input focus animations
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.querySelector('label').classList.add('text-green-200');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.querySelector('label').classList.remove('text-green-200');
+            });
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+ showMessage('This is for Temple Officials only.', 'error');
+            // Clear any existing login status
+            try {
+                sessionStorage.removeItem('isLogin');
+                sessionStorage.removeItem('userRole');
+                sessionStorage.removeItem('userId');
+                sessionStorage.removeItem('userData');
+            } catch (e) {
+                console.log('SessionStorage not available');
+            }
+            
+            // Focus username field
+            setTimeout(() => {
+                document.getElementById('username').focus();
+            }, 300);
+        });
+
+
+function createConfetti() {
+   console.log('Creating confetti...');
+   const confettiContainer = document.getElementById('confettiContainer');
+   
+   if (!confettiContainer) {
+       console.error('Confetti container not found!');
+       return;
+   }
+   
+   const colors = [
+       '#10b981', '#34d399', '#6ee7b7', '#a7f3d0', 
+       '#059669', '#047857', '#065f46', '#ecfdf5',
+       '#d1fae5', '#86efac', '#4ade80', '#22c55e'
+   ];
+   const confettiCount = 50;
+
+   for (let i = 0; i < confettiCount; i++) {
+       const confetti = document.createElement('div');
+       confetti.className = 'confetti-piece';
+       
+       const color = colors[Math.floor(Math.random() * colors.length)];
+       confetti.style.backgroundColor = color;
+       confetti.style.left = Math.random() * 100 + '%';
+       confetti.style.top = '-10px';
+       confetti.style.position = 'absolute';
+       confetti.style.zIndex = '1001';
+       
+       // Random shapes
+       const shapes = ['square', 'circle', 'triangle'];
+       const shape = shapes[Math.floor(Math.random() * shapes.length)];
+       
+       if (shape === 'circle') {
+           confetti.style.borderRadius = '50%';
+           confetti.style.width = '8px';
+           confetti.style.height = '8px';
+       } else if (shape === 'triangle') {
+           confetti.style.width = '0';
+           confetti.style.height = '0';
+           confetti.style.backgroundColor = 'transparent';
+           confetti.style.borderLeft = '5px solid transparent';
+           confetti.style.borderRight = '5px solid transparent';
+           confetti.style.borderBottom = `10px solid ${color}`;
+       } else {
+           // Square (default)
+           confetti.style.width = '10px';
+           confetti.style.height = '10px';
+           if (Math.random() > 0.5) {
+               confetti.style.transform = 'rotate(45deg)';
+           }
+       }
+       
+       // Apply animation with random delay and duration
+       const duration = 2.5 + Math.random() * 2; // 2.5-4.5 seconds
+       const delay = Math.random() * 0.5; // 0-0.5 second delay
+       
+       confetti.style.animation = `confettiFall ${duration}s ease-in ${delay}s forwards`;
+       
+       confettiContainer.appendChild(confetti);
+      // console.log('Confetti piece added:', i + 1);
+       
+       // Remove confetti after animation completes
+       setTimeout(() => {
+           if (confetti && confetti.parentNode) {
+               confetti.parentNode.removeChild(confetti);
+           }
+       }, (duration + delay + 0.5) * 1000);
+   }
+   
+   console.log(`${confettiCount} confetti pieces created!`);
+}
+    </script>
+</body>
+</html>

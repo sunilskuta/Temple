@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>വഴിപാടുകൾ | Temple Offerings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3iBWleWNMCdQS9F0HR1wHBBtHkeMawhg",
+            authDomain: "sjpss-f504b.firebaseapp.com",
+            projectId: "sjpss-f504b",
+            storageBucket: "sjpss-f504b.firebasestorage.app",
+            messagingSenderId: "227402980311",
+            appId: "1:227402980311:web:56b580456ab6b9c6758992",
+            measurementId: "G-LZ4YP9YPN6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadOfferings() {
+            const container = document.getElementById('offerings-container');
+            const loading = document.getElementById('loading');
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "offerings"));
+                loading.classList.add('hidden');
+
+                if (querySnapshot.empty) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-16">
+                            <p class="text-gray-600 text-lg font-medium">ഇപ്പോൾ വഴിപാടുകൾ ലഭ്യമല്ല</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const name = data.name || 'വഴിപാട്';
+                    const cost = data.cost || 0;
+
+                    const card = document.createElement('div');
+                    card.className = `
+                        bg-white rounded-2xl shadow-md p-5 
+                        hover:shadow-xl active:scale-[0.98] 
+                        transition-all duration-200 cursor-pointer
+                        border border-orange-100
+                    `;
+                    card.innerHTML = `
+<div class="flex flex-col h-full min-h-[70px]">
+    <h3 class="text-base md:text-lg font-bold text-gray-800 mb-2 leading-tight">
+        ${name}
+    </h3>
+    <div class="mt-auto">
+        <p class="text-xl md:text-2xl font-bold text-orange-600">
+            ₹${cost}
+        </p>
+    </div>
+</div>
+
+                    `;
+
+                    // Navigate to payment page on click
+                    card.addEventListener('click', () => {
+                        const params = new URLSearchParams({
+                            name: encodeURIComponent(name),
+                            cost: cost
+                        });
+                        window.location.href = `payment.html?${params.toString()}`;
+                    });
+
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Error:", error);
+                loading.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <p class="text-red-600 text-lg font-medium">വഴിപാടുകൾ ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല. പിന്നീട് ശ്രമിക്കുക.</p>
+                    </div>
+                `;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadOfferings);
+    </script>
+</head>
+<body class="bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 min-h-screen font-sans">
+
+    <!-- Close Button -->
+    <button 
+        onclick="window.close()" 
+        class="fixed top-4 right-4 z-50 bg-white/80 backdrop-blur-sm text-gray-700 hover:text-orange-600 
+               p-3 rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95"
+        title="Close"
+        aria-label="Close page">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+
+    <div class="container mx-auto px-4 sm:px-6 py-10 md:py-14 max-w-5xl">
+
+        <!-- Header -->
+        <div class="text-center mb-10 md:mb-14">
+            <h1 class="text-4xl sm:text-2xl font-bold text-gray-800 mb-3">🕉️ വഴിപാടുകൾ</h1>
+            <p class="text-gray-600 text-base sm:text-lg">തിരഞ്ഞെടുക്കൂക</p>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="flex justify-center items-center min-h-[50vh]">
+            <div class="animate-spin rounded-full h-14 w-14 border-t-4 border-orange-500 border-r-4 border-r-transparent"></div>
+        </div>
+
+        <!-- Cards Grid -->
+        <div id="offerings-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            <!-- Cards loaded here -->
+        </div>
+
+    </div>
+
+    <!-- Optional bottom spacing on mobile -->
+    <div class="h-20 md:hidden"></div>
+</body>
+</html>

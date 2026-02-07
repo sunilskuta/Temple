@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ചിരട്ട ശാസ്താക്ഷേത്രം, തൊളിക്കുഴി</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .temple-pattern {
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        }
+        
+        .pooja-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shine::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+        
+        .time-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-500">
+
+ <!-- Close Button -->
+    <button 
+        onclick="window.close()" 
+        class="fixed top-4 right-4 z-50 bg-white/80 backdrop-blur-sm text-gray-700 hover:text-orange-600 
+               p-3 rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95"
+        title="Close"
+        aria-label="Close page">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+
+    <!-- Header -->
+    <div class="gradient-bg temple-pattern text-white py-8 px-4 shadow-xl">
+        <div class="max-w-md mx-auto text-center">
+            <div class="mb-4">
+<img
+  src="https://live.staticflickr.com/65535/55082432518_78e6410734.jpg"
+  alt="Lord Ayyappa"
+  class="w-16 h-16 mx-auto rounded-full shadow-lg object-cover"
+/>
+
+
+            </div>
+            <h1 class="text-3xl font-bold mb-2">ചിരട്ട ശാസ്താക്ഷേത്രം</h1>
+            <p class="text-lg opacity-90">തൊളിക്കുഴി</p>
+            <div class="mt-4 inline-block bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                <p class="text-sm">🙏 ഓം ശാസ്താനമഃ 🙏</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-md mx-auto px-4 py-6 space-y-4">
+        
+        <!-- Morning Poojas -->
+        <div class="pooja-card rounded-2xl shadow-lg p-5 shine">
+            <div class="flex items-center mb-4">
+                <div class="bg-gradient-to-br from-orange-400 to-pink-500 rounded-full p-3 mr-3">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zm0 16a5 5 0 100-10 5 5 0 000 10zm8-5a1 1 0 01-1 1h-1a1 1 0 010-2h1a1 1 0 011 1zM6 13a1 1 0 01-1 1H4a1 1 0 010-2h1a1 1 0 011 1z"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">പ്രഭാത പൂജകൾ</h2>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-pink-50 rounded-xl border-l-4 border-orange-500">
+                    <div>
+                        <p class="text-gray-600 text-sm">ഉഷഃപൂജ</p>
+                        <p class="text-lg font-semibold text-gray-800 mt-1">രാവിലെ 5:30</p>
+                    </div>
+                    <div class="time-badge text-white px-3 py-1 rounded-full text-sm font-medium">
+                        AM
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-l-4 border-yellow-500">
+                    <div>
+                        <p class="text-gray-600 text-sm">ഉച്ചപൂജ</p>
+                        <p class="text-lg font-semibold text-gray-800 mt-1">ഉച്ച 12:00</p>
+                    </div>
+                    <div class="time-badge text-white px-3 py-1 rounded-full text-sm font-medium">
+                        PM
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evening Poojas -->
+        <div class="pooja-card rounded-2xl shadow-lg p-5 shine">
+            <div class="flex items-center mb-4">
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full p-3 mr-3">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">സന്ധ്യാ പൂജകൾ</h2>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-l-4 border-indigo-500">
+                    <div>
+                        <p class="text-gray-600 text-sm">സന്ധ്യാദീപാരാധന</p>
+                        <p class="text-lg font-semibold text-gray-800 mt-1">വൈകുന്നേരം 6:30</p>
+                    </div>
+                    <div class="time-badge text-white px-3 py-1 rounded-full text-sm font-medium">
+                        PM
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-l-4 border-purple-500">
+                    <div>
+                        <p class="text-gray-600 text-sm">അഥാഴപൂജ</p>
+                        <p class="text-lg font-semibold text-gray-800 mt-1">രാത്രി 8:00</p>
+                    </div>
+                    <div class="time-badge text-white px-3 py-1 rounded-full text-sm font-medium">
+                        PM
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temple Timings -->
+        <div class="pooja-card rounded-2xl shadow-lg p-5">
+            <div class="flex items-center mb-4">
+                <div class="bg-gradient-to-br from-green-500 to-teal-600 rounded-full p-3 mr-3">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">ക്ഷേത്ര സമയം</h2>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-4 border-2 border-green-200">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-gray-700 font-medium">തുറക്കുന്ന സമയം</span>
+                    <span class="text-xl font-bold text-gray-800">രാവിലെ 5:00</span>
+                </div>
+                <div class="border-t border-green-200 my-3"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700 font-medium">അടയ്ക്കുന്ന സമയം</span>
+                    <span class="text-xl font-bold text-gray-800">രാത്രി 8:30</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Note -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500 rounded-xl p-4 shadow-md">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                <div>
+                    <p class="text-gray-700 font-medium mb-1">പ്രത്യേക ദിവസങ്ങൾ</p>
+                    <p class="text-sm text-gray-600">ഉത്സവ ദിവസങ്ങളിൽ പ്രത്യേക പൂജകൾ ഉണ്ടായിരിക്കും. വിശദമായ വിവരങ്ങൾക്ക് ക്ഷേത്ര ഭരണകൂടത്തെ സമീപിക്കുക.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center py-6">
+            <p class="text-white text-sm mb-2">ഭക്തർക്ക് സകല ഐശ്വര്യങ്ങളും ഉണ്ടാകട്ടെ</p>
+            <p class="text-2xl">🪔 ഹരി ഓം 🪔</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF6B35',
+            'primary-dark': '#E55A2B',
+            secondary: '#004E89',
+            accent: '#FFD23F',
+            success: '#10B981',
+          },
+          fontFamily: {
+            heading: ['Syne', 'sans-serif'],
+            body: ['DM Sans', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-600 text-gray-900 font-body relative overflow-x-hidden px-4 py-6">
+
+  <!-- Subtle background pattern -->
+  <div class="fixed inset-0 opacity-10 pointer-events-none">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_1px,transparent_1px)] bg-[length:30px_30px] animate-[moveGrid_20s_linear_infinite]"></div>
+  </div>
+
+  <div class="relative z-10 max-w-md mx-auto">
+
+    <!-- Header -->
+    <div class="text-center mb-8 animate-[slideDown_0.6s_ease-out]">
+      <div class="w-20 h-20 mx-auto mb-4 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-4xl font-heading font-extrabold text-primary animate-bounce">
+        💳
+      </div>
+      <h1 class="text-3xl md:text-4xl font-heading font-extrabold text-white tracking-tight">Payment</h1>
+      <p class="text-white/80 text-base mt-1">Complete your transaction</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="hidden bg-gradient-to-r from-red-600 to-red-700 text-white p-4 rounded-2xl text-center font-medium mb-6 animate-shake"></div>
+
+    <!-- Loader -->
+    <div id="loader" class="text-center py-20">
+      <div class="w-14 h-14 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-white font-semibold text-lg">Loading payment details...</p>
+    </div>
+
+<!-- Main Content -->
+<div id="contentArea" class="hidden">
+  <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 mb-6 animate-[slideUp_0.6s_ease-out_0.1s_both]">
+
+    <!-- User Info -->
+    <div class="flex items-center justify-between gap-4 pb-6 border-b border-gray-200 mb-6">
+
+      <!-- Left: Avatar + Details -->
+      <div class="flex items-center gap-4">
+        <div id="userAvatar"
+          class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-heading font-bold shadow-md flex-shrink-0">
+          U
+        </div>
+
+        <div>
+          <div id="userName" class="text-xl font-heading font-bold text-gray-900">
+            Loading...
+          </div>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="text-sm font-medium text-gray-600">Nakshatra:</span>
+            <span id="nakshatraText" class="text-base font-semibold text-secondary"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Change Button -->
+      <button
+        id="changeUserBtn"
+        class="px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-sm font-semibold text-white
+               bg-gradient-to-r from-primary to-accent
+               shadow-md hover:shadow-lg
+               hover:scale-105 transition-all duration-300
+               focus:outline-none focus:ring-2 focus:ring-primary/40">
+        Change
+      </button>
+
+    </div>
+
+    <!-- Payment Details -->
+    <div class="space-y-5">
+      <div class="flex justify-between items-center py-3 border-b border-gray-100">
+        <span class="text-gray-600 font-medium">Item</span>
+        <span id="itemName" class="text-lg font-heading font-bold text-gray-900">-</span>
+      </div>
+
+      <div class="flex justify-between items-center py-3 border-b border-gray-100">
+        <span class="text-gray-600 font-medium">Phone</span>
+        <span id="userPhone" class="text-lg font-heading font-bold text-gray-900">-</span>
+      </div>
+
+      <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-2xl">
+        <div class="flex justify-between items-center">
+          <span class="text-secondary font-bold text-lg">Total Amount</span>
+          <span id="totalCost" class="text-3xl font-heading font-extrabold text-primary">
+            ₹0
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pay Button -->
+  <button
+    id="payButton"
+    class="w-full py-5 bg-gradient-to-r from-primary to-primary-dark
+           text-white font-heading font-bold text-lg rounded-2xl
+           shadow-xl hover:shadow-2xl hover:-translate-y-1
+           active:translate-y-0 transition-all duration-300 relative overflow-hidden">
+    Proceed to Pay
+  </button>
+</div>
+
+
+  <!-- Success Overlay -->
+  <div id="successOverlay" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-50">
+    <div class="text-center px-6 animate-[scaleIn_0.5s_ease-out]">
+      <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-success to-emerald-700 rounded-full flex items-center justify-center text-white text-5xl shadow-2xl animate-bounce">
+        ✓
+      </div>
+      <h2 class="text-4xl font-heading font-extrabold text-white mb-3">Payment Successful!</h2>
+      <p class="text-white/80 text-lg">Your transaction has been completed</p>
+    </div>
+  </div>
+
+
+<!-- Change User Modal -->
+<div id="changeUserModal"
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+
+  <div class="bg-white rounded-2xl w-[90%] max-w-md p-6 shadow-2xl animate-[slideUp_0.3s_ease-out]">
+
+    <h3 class="text-xl font-heading font-bold text-gray-800 mb-4">
+      Change Details
+    </h3>
+
+    <!-- Name Input -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-600 mb-1">
+        Name
+      </label>
+      <input
+        id="newUserName"
+        type="text"
+        placeholder="Enter name"
+        class="w-full px-4 py-2 rounded-lg border border-gray-300
+               focus:outline-none focus:ring-2 focus:ring-primary/40">
+    </div>
+
+    <!-- Nakshatra Select -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-600 mb-1">
+        Nakshatra
+      </label>
+      <select
+        id="newNakshatra"
+        class="w-full px-4 py-2 rounded-lg border border-gray-300
+               focus:outline-none focus:ring-2 focus:ring-primary/40">
+        <option value="">Select Nakshatra</option>
+        <option>അശ്വതി</option>
+        <option>ഭരണി</option>
+        <option>കാർത്തിക</option>
+        <option>രോഹിണി</option>
+        <option>മകയിരം</option>
+        <option>തിരുവാതിര</option>
+        <option>പുണർതം</option>
+        <option>പൂയം</option>
+        <option>ആയില്യം</option>
+        <option>മകം</option>
+        <option>പൂരം</option>
+        <option>ഉത്രം</option>
+        <option>അത്തം</option>
+        <option>ചിത്തിര</option>
+        <option>ചോതി</option>
+        <option>വിശാഖം</option>
+        <option>അനിഴം</option>
+        <option>തൃക്കേട്ട</option>
+        <option>മൂലം</option>
+        <option>പൂരാടം</option>
+        <option>ഉത്രാടം</option>
+        <option>തിരുവോണം</option>
+        <option>അവിട്ടം</option>
+        <option>ചതയം</option>
+        <option>പൂരുരുട്ടാതി</option>
+        <option>ഉത്രട്ടാതി</option>
+        <option>രേവതി</option>
+      </select>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex justify-end gap-3">
+      <button
+        id="cancelButton"
+        class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
+        Cancel
+      </button>
+
+      <button
+        id="includeButton"
+        class="px-5 py-2 rounded-lg text-white font-semibold
+               bg-gradient-to-r from-primary to-accent
+               hover:shadow-lg transition-all">
+        Include
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB3iBWleWNMCdQS9F0HR1wHBBtHkeMawhg",
+      authDomain: "sjpss-f504b.firebaseapp.com",
+      projectId: "sjpss-f504b",
+      storageBucket: "sjpss-f504b.firebasestorage.app",
+      messagingSenderId: "227402980311",
+      appId: "1:227402980311:web:56b580456ab6b9c6758992",
+      measurementId: "G-LZ4YP9YPN6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const itemName = decodeURIComponent(urlParams.get('name') || 'Item');
+    const itemCost = urlParams.get('cost') || '0';
+
+    const phoneNumber = localStorage.getItem('Phone');
+
+// ⬇️ Hide parameters from address bar
+window.history.replaceState({}, document.title, window.location.pathname);
+
+    function showError(message) {
+      const errorEl = document.getElementById('errorMessage');
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+      document.getElementById('loader').classList.add('hidden');
+    }
+
+    async function loadUserData() {
+      if (!phoneNumber) {
+        window.location.href = 'addUser.html';
+        return;
+      }
+
+      document.getElementById('loader').classList.remove('hidden');
+      document.getElementById('contentArea').classList.add('hidden');
+
+      try {
+        const q = query(collection(db, 'Tusers'), where('phone', '==', phoneNumber));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          showError('User not found. Please register first.');
+          setTimeout(() => window.location.href = 'addUser.html', 2200);
+          return;
+        }
+
+        const userData = querySnapshot.docs[0].data();
+
+        // Update UI
+        document.getElementById('userName').textContent = userData.name || 'User';
+        document.getElementById('userPhone').textContent = phoneNumber;
+        document.getElementById('itemName').textContent = itemName;
+        document.getElementById('totalCost').textContent = `₹${itemCost}`;
+
+        // Nakshatra instead of stars
+        const nakshatra = userData.star || 'Not specified';
+        document.getElementById('nakshatraText').textContent = nakshatra;
+
+        // Avatar
+        const avatar = document.getElementById('userAvatar');
+        avatar.textContent = (userData.name || 'U').charAt(0).toUpperCase();
+
+        // Show content
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('contentArea').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to load user data. Please try again.');
+      }
+    }
+
+    // Pay button (demo success)
+    document.getElementById('payButton').addEventListener('click', () => {
+      document.getElementById('successOverlay').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('successOverlay').classList.add('hidden');
+      }, 3200);
+    });
+
+    // Start
+    loadUserData();
+
+
+
+ const changeBtn = document.getElementById('changeUserBtn');
+  const modal = document.getElementById('changeUserModal');
+
+  changeBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  });
+
+
+
+// to close pop up window
+    document.getElementById('cancelButton').addEventListener('click', () => {
+      document.getElementById('changeUserModal').classList.add('hidden');
+    });
+// to insert pop up window data
+    document.getElementById('includeButton').addEventListener('click', () => {
+    const name = document.getElementById('newUserName').value.trim();
+    const nakshatra = document.getElementById('newNakshatra').value;
+
+    if (!name || !nakshatra) {
+      alert('Please enter name and select Nakshatra');
+      return;
+    }
+
+    document.getElementById('userName').textContent = name;
+    document.getElementById('nakshatraText').textContent = nakshatra;
+      document.getElementById('changeUserModal').classList.add('hidden');
+    });
+
+  </script>
+
+  <style>
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%     { transform: translateX(-6px); }
+      75%     { transform: translateX(6px); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.6); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .animate-slideDown { animation: slideDown 0.6s ease-out; }
+    .animate-slideUp    { animation: slideUp 0.6s ease-out; }
+    .animate-shake      { animation: shake 0.5s; }
+  </style>
+</body>
+</html>
