@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Audit Logs</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.7.1/firebase-app-compat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.7.1/firebase-firestore-compat.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e28;
+      --border: #232838;
+      --accent: #4f8ef7;
+      --accent2: #7c5cfc;
+      --danger: #f25f5c;
+      --success: #3ecf8e;
+      --warn: #f5a623;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'Sora', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-top: 1px;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-wrap input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .select-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 160px;
+      max-width: 280px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      padding: 0.45rem 0.75rem 0.45rem 2rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--muted); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-danger {
+      background: rgba(242, 95, 92, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(242, 95, 92, 0.25);
+    }
+
+    .btn-danger:not(:disabled):hover {
+      background: rgba(242, 95, 92, 0.22);
+      border-color: var(--danger);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    /* Log table */
+    .log-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      background: var(--surface2);
+      padding: 0.6rem 1rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    thead th:first-child { width: 40px; padding-left: 1rem; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+      cursor: default;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+
+    tbody tr:hover { background: var(--surface2); }
+
+    tbody tr.selected { background: rgba(79, 142, 247, 0.06); }
+
+    td {
+      padding: 0.7rem 1rem;
+      font-size: 0.82rem;
+      vertical-align: top;
+    }
+
+    td:first-child { width: 40px; padding-left: 1rem; padding-right: 0; }
+
+    .module-chip {
+      display: inline-block;
+      background: rgba(124, 92, 252, 0.12);
+      color: #a78bfa;
+      border: 1px solid rgba(124, 92, 252, 0.2);
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .action-text {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.82rem;
+    }
+
+    .details-text {
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 2px;
+      font-family: var(--mono);
+    }
+
+    .performer {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    .status-success {
+      background: rgba(62, 207, 142, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(62, 207, 142, 0.2);
+    }
+
+    .status-failure {
+      background: rgba(242, 95, 92, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(242, 95, 92, 0.2);
+    }
+
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .time-text {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .device-info {
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .delete-row-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: all 0.15s;
+      opacity: 0;
+    }
+
+    tr:hover .delete-row-btn { opacity: 1; }
+    .delete-row-btn:hover { background: rgba(242, 95, 92, 0.12); color: var(--danger); }
+
+    /* Empty/loading states */
+    .state-row td {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 0.75rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Confirm modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      width: 340px;
+      max-width: calc(100vw - 2rem);
+      transform: translateY(12px) scale(0.97);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.show .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(242, 95, 92, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .modal h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 200;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.25s;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(62,207,142,0.3); color: var(--success); }
+    .toast.error { border-color: rgba(242,95,92,0.3); color: var(--danger); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hide-mobile { display: none; }
+      td, th { padding: 0.6rem 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-icon">
+        <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Audit Logs</h1>
+        <div class="subtitle">Tlogs · real-time</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost" onclick="fetchLogs()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <label class="checkbox-wrap">
+        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+        <span class="select-label">Select all</span>
+      </label>
+      <span class="badge" id="countBadge">0 logs</span>
+      <span id="selectedInfo" style="font-size:0.75rem;color:var(--muted);display:none"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+      <div class="search-wrap">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input class="search-input" id="searchInput" placeholder="Search logs…" oninput="filterLogs()">
+      </div>
+      <button class="btn btn-danger" id="deleteSelectedBtn" disabled onclick="confirmDeleteSelected()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6m5 0V4h4v2"/>
+        </svg>
+        Delete selected
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="log-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Action / Details</th>
+          <th>Module</th>
+          <th class="hide-mobile">By</th>
+          <th class="hide-mobile">Device</th>
+          <th>Device</th>
+          <th>Time</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="logBody">
+        <tr class="state-row"><td colspan="8"><div class="spinner"></div>Loading logs…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg width="20" height="20" fill="none" stroke="#f25f5c" stroke-width="2.2" viewBox="0 0 24 24">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6m5 0V4h4v2"/>
+      </svg>
+    </div>
+    <h2 id="modalTitle">Delete log?</h2>
+    <p id="modalDesc">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="modalConfirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+<script src="Tfbc.js"></script>
+<script type="module">
+  // ─── FIREBASE IMPORT ────────────────────────────────────────────────────────
+  // Adjust path to your actual Tfbc.js config file
+ // import { firebaseConfig } from './Tfbc.js';
+
+  // ─── INIT ────────────────────────────────────────────────────────────────────
+  const app = firebase.initializeApp(firebaseConfig);
+  const db  = firebase.firestore();
+
+  let allLogs    = [];
+  let filtered   = [];
+  let selected   = new Set();
+  let pendingDel = null; // single delete id
+
+  // ─── FETCH LOGS ──────────────────────────────────────────────────────────────
+  window.fetchLogs = async function () {
+    setLoading(true);
+    try {
+      const snap = await db.collection('Tlogs')
+        .orderBy('timestamp', 'desc')
+        .get();
+
+      allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      selected.clear();
+      document.getElementById('selectAll').checked = false;
+      filterLogs();
+    } catch (e) {
+      console.error(e);
+      showState(`<span style="color:var(--danger)">⚠ Failed to load logs</span>`, 8);
+      showToast('Failed to load logs', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─── FILTER ──────────────────────────────────────────────────────────────────
+  window.filterLogs = function () {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    filtered = q
+      ? allLogs.filter(l =>
+          (l.action||'').toLowerCase().includes(q)  ||
+          (l.details||'').toLowerCase().includes(q) ||
+          (l.module||'').toLowerCase().includes(q)  ||
+          (l.performedBy||'').toLowerCase().includes(q) ||
+          (l.status||'').toLowerCase().includes(q)
+        )
+      : [...allLogs];
+    renderTable();
+    updateToolbar();
+  };
+
+  // ─── RENDER TABLE ────────────────────────────────────────────────────────────
+  function renderTable() {
+    const tbody = document.getElementById('logBody');
+    document.getElementById('countBadge').textContent =
+      `${filtered.length} log${filtered.length !== 1 ? 's' : ''}`;
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr class="state-row"><td colspan="8">No logs found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(log => {
+      const ts  = log.timestamp?.toDate?.() ?? new Date(log.timestamp);
+      const date = ts ? formatDate(ts) : '—';
+      const sel  = selected.has(log.id);
+      const os   = log.device?.os || '';
+      const br   = log.device?.browser || '';
+      const type = log.device?.type || '';
+      const isSuccess = (log.status || '').toLowerCase() === 'success';
+
+      return `
+      <tr class="${sel ? 'selected' : ''}" data-id="${log.id}">
+        <td>
+          <input type="checkbox" ${sel ? 'checked' : ''} 
+            onchange="toggleRow('${log.id}', this.checked)"
+            style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+        </td>
+        <td>
+          <div class="action-text">${esc(log.action || '—')}</div>
+          <div class="details-text">${esc(log.details || '')}</div>
+        </td>
+        <td>
+          <span class="module-chip">${esc(log.module || '—')}</span>
+        </td>
+        <td class="hide-mobile">
+          <span class="performer">${esc(log.performedBy || '—')}</span>
+        </td>
+        <td class="hide-mobile">
+          <div class="device-info">
+            ${typeIcon(type)}
+            <span>${esc(br)}${os ? ' · ' + esc(os) : ''}</span>
+          </div>
+        </td>
+        <td>
+          <span class="status-badge ${isSuccess ? 'status-success' : 'status-failure'}">
+            <span class="status-dot"></span>
+            ${esc(log.device.type || '—')}
+          </span>
+        </td>
+        <td>
+          <div class="time-text">${date}</div>
+        </td>
+        <td>
+          <button class="delete-row-btn" title="Delete log"
+            onclick="confirmDeleteOne('${log.id}', '${esc(log.action||'').replace(/'/g,"\\'")}')">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6m5 0V4h4v2"/>
+            </svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ─── SELECT / DESELECT ───────────────────────────────────────────────────────
+  window.toggleSelectAll = function () {
+    const all = document.getElementById('selectAll').checked;
+    if (all) filtered.forEach(l => selected.add(l.id));
+    else     selected.clear();
+    renderTable();
+    updateToolbar();
+  };
+
+  window.toggleRow = function (id, checked) {
+    checked ? selected.add(id) : selected.delete(id);
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    if (row) row.classList.toggle('selected', checked);
+    updateToolbar();
+    // sync selectAll checkbox
+    const sa = document.getElementById('selectAll');
+    sa.checked = filtered.length > 0 && filtered.every(l => selected.has(l.id));
+    sa.indeterminate = selected.size > 0 && selected.size < filtered.length;
+  };
+
+  function updateToolbar() {
+    const btn  = document.getElementById('deleteSelectedBtn');
+    const info = document.getElementById('selectedInfo');
+    const n = selected.size;
+    btn.disabled = n === 0;
+    if (n > 0) {
+      info.style.display = 'inline';
+      info.textContent   = `${n} selected`;
+    } else {
+      info.style.display = 'none';
+    }
+  }
+
+  // ─── DELETE CONFIRM ──────────────────────────────────────────────────────────
+  window.confirmDeleteOne = function (id, action) {
+    pendingDel = { type: 'single', id };
+    document.getElementById('modalTitle').textContent = 'Delete this log?';
+    document.getElementById('modalDesc').textContent  =
+      `"${action}" will be permanently removed.`;
+    document.getElementById('modalConfirmBtn').onclick = execDelete;
+    showModal();
+  };
+
+  window.confirmDeleteSelected = function () {
+    if (!selected.size) return;
+    pendingDel = { type: 'bulk', ids: [...selected] };
+    document.getElementById('modalTitle').textContent = `Delete ${selected.size} log${selected.size>1?'s':''}?`;
+    document.getElementById('modalDesc').textContent  =
+      'Selected logs will be permanently removed. This cannot be undone.';
+    document.getElementById('modalConfirmBtn').onclick = execDelete;
+    showModal();
+  };
+
+  async function execDelete() {
+    closeModal();
+    const btn = document.getElementById('deleteSelectedBtn');
+    btn.disabled = true;
+
+    try {
+      const ids = pendingDel.type === 'single'
+        ? [pendingDel.id]
+        : pendingDel.ids;
+
+      const batch = db.batch();
+      ids.forEach(id => batch.delete(db.collection('Tlogs').doc(id)));
+      await batch.commit();
+
+      allLogs  = allLogs.filter(l => !ids.includes(l.id));
+      ids.forEach(id => selected.delete(id));
+      document.getElementById('selectAll').checked     = false;
+      document.getElementById('selectAll').indeterminate = false;
+      filterLogs();
+      showToast(`${ids.length} log${ids.length>1?'s':''} deleted`, 'success');
+    } catch (e) {
+      console.error(e);
+      showToast('Delete failed', 'error');
+    } finally {
+      updateToolbar();
+      pendingDel = null;
+    }
+  }
+
+  // ─── MODAL ───────────────────────────────────────────────────────────────────
+  function showModal() {
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  window.closeModal = function () {
+    document.getElementById('modalOverlay').classList.remove('show');
+    pendingDel = null;
+  };
+
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  });
+
+  // ─── TOAST ───────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = type === 'success' ? '✓  ' + msg : '✕  ' + msg;
+    t.className = `toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = 'toast'; }, 2800);
+  }
+
+  // ─── HELPERS ─────────────────────────────────────────────────────────────────
+  function setLoading(v) {
+    if (v) showState('<div class="spinner"></div>Loading logs…', 1);
+  }
+
+  function showState(html, colspan) {
+    document.getElementById('logBody').innerHTML =
+      `<tr class="state-row"><td colspan="${colspan || 8}">${html}</td></tr>`;
+    document.getElementById('countBadge').textContent = '0 logs';
+  }
+
+  function formatDate(d) {
+    return d.toLocaleString('en-IN', {
+      day:'2-digit', month:'short', year:'numeric',
+      hour:'2-digit', minute:'2-digit', hour12: true
+    });
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function typeIcon(type) {
+    const t = (type||'').toLowerCase();
+    if (t === 'mobile') return `<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>`;
+    if (t === 'tablet') return `<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>`;
+    return `<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>`;
+  }
+
+  // ─── BOOT ────────────────────────────────────────────────────────────────────
+  fetchLogs();
+</script>
+</body>
+</html>
