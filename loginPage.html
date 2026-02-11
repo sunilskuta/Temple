@@ -339,7 +339,7 @@
         async function authenticateUser(username, password) {
             try {
                 // Query Firestore for user with matching username
-                const usersRef = db.collection('users');
+                const usersRef = db.collection('Tofficials');
                 const query = usersRef.where('username', '==', username);
                 const snapshot = await query.get();
 
@@ -410,9 +410,8 @@
             const redirects = {
                 'admin': `adminPanel.html?role=${role}&userId=${userId}`,
                 'operator': `operatorPanel.html?role=${role}&userId=${userId}`,
-                'deliveryStaff': `deliveryStaffPage.html?staffId=${userId}`,
-                'warehouseManager': `wareHousePanel.html?staffId=${userId}`,
-                'packingStaff': `orderPacking.html`
+                'developer': `developerPanel.html?staffId=${userId}`,
+
             };
             
             const redirectUrl = redirects[role];
