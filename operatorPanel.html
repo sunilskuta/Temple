@@ -154,12 +154,12 @@
 
 // ⬇️ Hide parameters from address bar
 window.history.replaceState({}, document.title, window.location.pathname);
-
+/*
         document.addEventListener('DOMContentLoaded', function() {
 		showDashboard();
         });
 
-
+*/
 
 function formatDate(timestamp) {
   const date = timestamp?.toDate?.() || new Date();
@@ -213,6 +213,20 @@ function formatDate(timestamp) {
         costSelect.value = selected.dataset.cost;
     });
 
+function checkOperatorAccess() {
+  const userData = JSON.parse(sessionStorage.getItem('userData'));
+
+  if (!userData || userData.role !== "operator") {
+    alert("You do not have the privilege");
+    window.location = "loginPage.html"; 
+    return false; // stop execution
+  }
+
+  return true; // allowed
+}
+
+
+
     // Remit button
     document.getElementById("remitBtn").addEventListener("click", () => {
         const name = document.getElementById("offeringName").value.trim();
@@ -224,7 +238,7 @@ function formatDate(timestamp) {
             alert("ദയവായി എല്ലാ വിവരങ്ങളും പൂരിപ്പിക്കുക");
             return;
         }
-
+if (!checkOperatorAccess()) return; 
         console.log({
             name,
             nakshatra,
@@ -236,7 +250,7 @@ function formatDate(timestamp) {
         // - redirect to UPI page
         // - store in Firestore
         // - open payment modal
-        alert("Remit initiated");
+     //   alert("Remit initiated");
     });
 
     // Init
@@ -278,7 +292,7 @@ function closeModal() {
 function closeModal() {
   // Hide modal
   document.getElementById("paymentModal").classList.add("hidden");
-
+location.reload();
 loadOfferings(); 
 }
 
@@ -303,7 +317,7 @@ function showSection(type) {
   if (type === "cash") {
    
     document.getElementById("cashSection").classList.remove("hidden");
- document.getElementById("cashAmount").innerHTML = currentPayment.cost; alert(currentPayment.cost);
+ document.getElementById("cashAmount").innerHTML = currentPayment.cost; //alert(currentPayment.cost);
   } else {
   document.getElementById("upiAmount").textContent = currentPayment.cost;
   document.getElementById("upiIdText").textContent = UPI_ID;
@@ -335,8 +349,8 @@ function generateQR() {
     height: 180
   });
 }
-
-/* Receipt */
+/*
+ //Receipt
 function printReceipt(mode) {
   document.getElementById("rName").textContent = currentPayment.name;
   document.getElementById("rNakshatra").textContent = currentPayment.nakshatra;
@@ -360,6 +374,59 @@ function printReceipt(mode) {
   win.close();
  
 }
+*/
+
+/* Receipt */
+async function printReceipt(mode) {
+
+  const userData = JSON.parse(sessionStorage.getItem('userData'));
+  const operatorId = userData ? userData.id : "unknown";
+
+  const journalData = {
+    journalId: "J" + Date.now(),
+    dateTime: new Date(),
+    name: currentPayment.name,
+    nakshatra: currentPayment.nakshatra,
+    offering: currentPayment.offering,
+    cost: currentPayment.cost,
+    mode: mode,
+    operatorId: operatorId
+  };
+
+  try {
+    // Save to Firestore
+    await addDoc(collection(db, "Tjournals"), journalData);
+
+    console.log("Journal Saved:", journalData);
+  } catch (error) {
+    console.error("Error saving journal:", error);
+  }
+
+  // ===== Existing Receipt Code =====
+  document.getElementById("rName").textContent = currentPayment.name;
+  document.getElementById("rNakshatra").textContent = currentPayment.nakshatra;
+  document.getElementById("rOffering").textContent = currentPayment.offering;
+  document.getElementById("rAmount").textContent = currentPayment.cost;
+  document.getElementById("rMode").textContent = mode;
+  document.getElementById("rDate").textContent = new Date().toLocaleString();
+
+  if (mode === "Cash") {
+    document.getElementById("rExtra").textContent =
+      "Received: ₹ " + document.getElementById("cashReceived").value;
+  } else {
+    document.getElementById("rExtra").textContent =
+      "UTR: " + document.getElementById("utrInput").value;
+  }
+
+  const receiptHTML = document.getElementById("receipt").innerHTML;
+  const win = window.open("", "", "width=400,height=600");
+  win.document.write(receiptHTML);
+  win.print();
+  win.close();
+}
+
+
+
 
 document.getElementById("closeBtn").addEventListener("click", () => {
   closeModal();
@@ -475,8 +542,8 @@ document.getElementById("saveNotificationBtn").onclick = async () => {
 
 </script>
 </head>
-
-<body class="bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 font-sans min-h-screen" oncontextmenu="return false;" onkeydown="if(event.keyCode==123) return false;" >
+<!--  oncontextmenu="return false;"  onkeydown="if(event.keyCode==123) return false;" -->
+<body class="bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 font-sans min-h-screen">
   <div class="flex flex-col md:flex-row min-h-screen">
    <!-- Desktop Sidebar -->
 <aside class="w-64 bg-white/90 backdrop-blur-md border-r border-gray-200 sidebar-shadow hidden md:block fixed md:relative z-30 h-full">
@@ -507,6 +574,20 @@ document.getElementById("saveNotificationBtn").onclick = async () => {
       <i class="fas fa-solid fa-user w-5 h-5 mr-3 text-pink-500 group-hover:text-white"></i>
       <span class="font-bold text-xs">സംഭാവന</span>
     </a>
+
+<a href="journalBook.html"
+   class="nav-item group flex items-center px-4 py-2 rounded-lg 
+   text-gray-700 hover:bg-blue-700 hover:text-white 
+   transition-all duration-300 shadow-sm hover:shadow-lg border border-blue-200">
+
+  <i class="fas fa-book-open w-5 h-5 mr-3 text-blue-600 group-hover:text-white"></i>
+
+  <span class="font-bold text-xs tracking-wide">
+    ജേണൽ ബുക്ക്
+  </span>
+
+</a>
+
 
 
 
@@ -1113,7 +1194,7 @@ document.getElementById("saveNotificationBtn").onclick = async () => {
       </button>
     </div>
 
-    <button id="closeBtn" onclick="closeModal()" class="absolute top-2 right-3 text-xl">×</button>
+    <button id="closeBtn" class="absolute top-2 right-3 text-xl">×</button>
   </div>
 </div>
 
@@ -1164,6 +1245,20 @@ document.getElementById("saveNotificationBtn").onclick = async () => {
     <a href="#donations" class="bottom-nav-item flex flex-col items-center text-gray-600 hover:text-blue-600 transition-all duration-200" onclick="showSection(this, event)">
       <i class="fas fa-bus text-lg"></i>
     </a>
+
+<a href="journalBook.html"
+   class="bottom-nav-item flex flex-col items-center 
+   text-gray-600 hover:text-blue-700 
+   transition-all duration-200">
+
+  <i class="fas fa-book-open text-lg"></i>
+
+  <span class="text-[10px] font-semibold mt-1">
+    ജേണൽ
+  </span>
+
+</a>
+
 
    <a href="#settings" class="bottom-nav-item flex flex-col items-center text-gray-600 hover:text-blue-600 transition-all duration-200" onclick="showSection(this, event)">
       <i class="fas fa-cog text-lg"></i>
