@@ -147,8 +147,10 @@
 		addDoc,
 		orderBy,
 		runTransaction,
+		onSnapshot,
   	where
 	} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -380,9 +382,149 @@ async function createLog(action, module, details) {
   }
 }
 
+function loadPendingOfferingsCount() {
+
+  const countElement = document.getElementById("pendingOfferingsCount");
+
+  if (!countElement) {
+    console.log("pendingOfferingsCount element not found");
+    return;
+  }
+
+  const q = query(
+    collection(db, "offerings"),
+    where("offeringStatus", "==", "added")
+  );
+
+  onSnapshot(q, (snapshot) => {
+    countElement.textContent = snapshot.size;
+    console.log("Pending Count:", snapshot.size);
+  }, (error) => {
+    console.error("Firestore error:", error);
+  });
+}
+//document.getElementById("Dashboard").classList.remove("hidden");
+loadPendingOfferingsCount();
+
+loadPendingOfferingsList();
 
 
+
+function loadPendingOfferingsList() {
+
+  const listContainer = document.getElementById("approvalList");
+  if (!listContainer) return;
+
+  const q = query(
+    collection(db, "offerings"),
+    where("offeringStatus", "==", "added")
+  );
+
+  onSnapshot(q, (snapshot) => {
+
+    listContainer.innerHTML = "";
+
+    if (snapshot.empty) {
+      listContainer.innerHTML = `
+        <p class="text-gray-400 text-sm text-center">
+          Pending offerings ഇല്ല
+        </p>
+      `;
+      return;
+    }
+
+    snapshot.forEach((docSnap) => {
+
+      const data = docSnap.data();
+      const id = docSnap.id;
+
+      listContainer.innerHTML += `
+        <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
+          
+          <div>
+            <p class="font-semibold text-gray-800">
+              ${data.name}
+            </p>
+            <p class="text-sm text-green-600">
+              ₹ ${data.cost}
+            </p>
+          </div>
+
+          <button 
+            onclick="approveOffering('${id}')"
+            class="bg-green-600 hover:bg-green-700 text-white 
+                   px-4 py-2 rounded-lg text-sm font-semibold transition">
+            Approve
+          </button>
+
+        </div>
+      `;
+
+    });
+
+  });
+}
+
+
+
+
+window.approveOffering = async function(id) {
+
+  try {
+
+    await updateDoc(doc(db, "offerings", id), {
+      offeringStatus: "approved"
+    });
+
+    console.log("Approved:", id);
+
+  } catch (error) {
+    console.error("Approval Error:", error);
+  }
+
+};
+
+
+
+
+document.getElementById("addExpenseBtn").addEventListener("click", async () => {
+
+  const category = document.getElementById("expenseCategory").value;
+  const amount = document.getElementById("expenseAmount").value;
+  const date = document.getElementById("expenseDate").value;
+  const note = document.getElementById("expenseNote").value;
+
+  if (!category || !amount || !date) {
+    alert("എല്ലാ ഫീല്‍ഡുകളും പൂരിപ്പിക്കുക");
+    return;
+  }
+
+  try {
+
+    await addDoc(collection(db, "Texpenses"), {
+      expenseCategory: category,
+      expenseAmount: Number(amount),
+      expenseDate: date,
+      expenseNote: note || "",
+      createdAt: serverTimestamp()
+    });
+
+    alert("ചെലവ് വിജയകരമായി സേവ് ചെയ്തു ✅");
+
+    // Clear Form
+    document.getElementById("expenseCategory").value = "";
+    document.getElementById("expenseAmount").value = "";
+    document.getElementById("expenseDate").value = "";
+    document.getElementById("expenseNote").value = "";
+
+  } catch (error) {
+    console.error("Error adding expense:", error);
+    alert("പിശക് സംഭവിച്ചു ❌");
+  }
+
+});
 </script>
+
 </head>
 <!-- oncontextmenu="return false;" onkeydown="if(event.keyCode==123) return false;" -->
 <body class="bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 font-sans min-h-screen"  >
@@ -407,6 +549,13 @@ async function createLog(action, module, details) {
       <span class="font-medium">Dashboard</span>
     </a>
 
+<!-- Accounts -->
+<a href="#accounts" class="nav-item group flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md" 
+   onclick="showSection(this, event)">
+
+  <i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-500 group-hover:text-indigo-700"></i>
+  <span class="font-medium">അക്കൗണ്ട്സ്</span>
+</a>
 
 <!-- Employees -->
 <a href="#employees" class="nav-item group flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md" onclick="showSection(this, event)">
@@ -471,30 +620,164 @@ async function createLog(action, module, details) {
 
 
        
-        <!-- Admin Dashboard -->
-        <section id="Dashboard" class="section-content hidden">
-          <div class="mb-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-2"> ഡാഷ്ബോര്‍ഡ്‌</h2>
-                        <p class="text-xs font-bold text-orange-600">സ്വാഗതം</p>
-                    </div>
+<!-- Admin Dashboard -->
+<section id="Dashboard" class="section-content hidden">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <p class="text-blue-100 text-xs font-bold">ഇന്നത്തെ ആകെ വഴിപാടുകള്‍ </p>
-                                    <p class="text-3xl font-bold mt-2" id="totalEmployees">0</p>
-                                </div>
-                                <div class="bg-white bg-opacity-20 rounded-lg p-3">
-                                    <span class="text-2xl">👥</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center text-xs font-bold">
-                                <span class="text-blue-100">രസീത് ആക്കിയത്</span>
-                            </div>
-                        </div>
-                    </div>
-        </section>
+  <div class="mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-2">ഡാഷ്ബോര്‍ഡ്‌</h2>
+    <p class="text-xs font-bold text-orange-600">സ്വാഗതം</p>
+  </div>
+
+  <!-- ONE Grid for Both Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+    <!-- Total Offerings Card -->
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <p class="text-green-100 text-xs font-bold">
+            ഇന്നത്തെ ആകെ വഴിപാടുകള്‍
+          </p>
+          <p class="text-3xl font-bold mt-2" id="totalEmployees">0</p>
+        </div>
+        <div class="bg-white bg-opacity-20 rounded-lg p-3">
+          <span class="text-2xl">💰</span>
+        </div>
+      </div>
+      <div class="text-xs font-bold text-green-100">
+        രസീത് ആക്കിയത്
+      </div>
+    </div>
+
+    <!-- Pending Approval Card -->
+    <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <p class="text-red-100 text-xs font-bold">
+            അംഗീകാരം കാത്തിരിക്കുന്ന വഴിപാടുകള്‍
+          </p>
+          <p class="text-3xl font-bold mt-2" id="pendingOfferingsCount">0</p>
+        </div>
+        <div class="bg-white bg-opacity-20 rounded-lg p-3">
+          <span class="text-2xl">⏳</span>
+        </div>
+      </div>
+      <div class="text-xs font-bold text-red-100">
+        Pending Approval
+      </div>
+    </div>
+
+  </div>
+
+
+<!-- Pending Offerings Approval List -->
+<div class="bg-white shadow-lg rounded-xl p-6 mt-6">
+
+  <h3 class="text-lg font-bold text-gray-800 mb-4">
+    അംഗീകാരം കാത്തിരിക്കുന്ന വഴിപാടുകള്‍
+  </h3>
+
+  <div id="approvalList" class="space-y-3">
+    <!-- Dynamic Content Here -->
+  </div>
+
+</div>
+</section>
+
+<section id="accounts" class="section-content hidden min-h-screen bg-gray-50 p-4">
+  <!-- Title -->
+  <h2 class="text-xl font-bold text-center text-indigo-700 mb-6">
+    💰 അക്കൗണ്ട്സ് മാനേജ്മെന്റ്
+  </h2>
+
+  <!-- Action Links -->
+  <div class="max-w-md mx-auto space-y-4">
+
+    <!-- Add Income -->
+    <a href="#addIncome"
+       class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg hover:scale-[1.02] transition">
+
+      <span class="text-lg font-semibold">➕ വരുമാനം ചേർക്കുക</span>
+      <span class="text-2xl">›</span>
+    </a>
+
+    <!-- Add Expense -->
+    <a href="#addExpense"
+       class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg hover:scale-[1.02] transition" onclick="showSection(this, event)">
+
+      <span class="text-lg font-semibold">➖ ചെലവ് ചേർക്കുക</span>
+      <span class="text-2xl">›</span>
+    </a>
+
+    <!-- View Reports -->
+    <a href="#accountsReport"
+       class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg hover:scale-[1.02] transition" onclick="showSection(this, event)">
+
+      <span class="text-lg font-semibold">📊 റിപ്പോർട്ട് കാണുക</span>
+      <span class="text-2xl">›</span>
+    </a>
+
+    <!-- Cash Balance -->
+    <a href="#cashBalance"
+       class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg hover:scale-[1.02] transition">
+
+      <span class="text-lg font-semibold">💵 കാഷ് ബാലൻസ്</span>
+      <span class="text-2xl">›</span>
+    </a>
+
+  </div>
+
+</section>
+
+
+<section id="accountsReport" class="section-content hidden min-h-screen bg-gray-50 p-4">
+
+  <!-- Title -->
+  <h2 class="text-xl font-bold text-center text-blue-700 mb-6">
+    📊 അക്കൗണ്ട്സ് റിപ്പോർട്ടുകൾ
+  </h2>
+
+  <!-- Report Links -->
+  <div class="max-w-md mx-auto space-y-4">
+
+    <!-- Journal -->
+    <a href="#journalReport"
+       class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg hover:scale-[1.02] transition"
+       onclick="showSection(this, event)">
+
+      <span class="text-lg font-semibold">📘 ജേർണൽ</span>
+      <span class="text-2xl">›</span>
+    </a>
+
+<!-- Ledger -->
+<a href="ledger.html"
+   class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg hover:scale-[1.02] transition">
+
+  <span class="text-lg font-semibold">📗 ലെഡ്ജർ</span>
+  <span class="text-2xl">›</span>
+</a>
+
+    <!-- Income & Expenditure -->
+    <a href="#incomeExpenditureReport"
+       class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg hover:scale-[1.02] transition"
+       onclick="showSection(this, event)">
+
+      <span class="text-lg font-semibold">📊 വരുമാന-ചെലവ് സ്റ്റേറ്റ്മെന്റ്</span>
+      <span class="text-2xl">›</span>
+    </a>
+
+    <!-- Balance Sheet -->
+    <a href="#balanceSheetReport"
+       class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg hover:scale-[1.02] transition"
+       onclick="showSection(this, event)">
+
+      <span class="text-lg font-semibold">📑 ബാലൻസ് ഷീറ്റ്</span>
+      <span class="text-2xl">›</span>
+    </a>
+
+  </div>
+
+</section>
 
 
 
@@ -842,6 +1125,88 @@ async function createLog(action, module, details) {
       id="saveTimingsBtn"
       class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold text-base hover:bg-indigo-700 active:scale-95 transition">
       SAVE TIMINGS
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- Add Expense Section -->
+<section id="addExpense" class="section-content hidden min-h-screen bg-gray-50 p-4">
+
+  <!-- Back Button -->
+  <div class="flex justify-end mb-4">
+    <button 
+      onclick="document.getElementById('addExpense').classList.add('hidden'); 
+               document.getElementById('Dashboard').classList.remove('hidden');"
+      class="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-full shadow-sm 
+             text-sm font-semibold text-gray-700 
+             hover:bg-blue-600 hover:text-white hover:border-blue-600 
+             active:scale-95 transition-all duration-200">
+      ← Dashboard
+    </button>
+  </div>
+
+  <!-- Card -->
+  <div class="max-w-md mx-auto bg-white shadow-lg rounded-xl p-6 space-y-4">
+
+    <h3 class="text-lg md:text-xl font-bold text-red-700 text-center">
+      💸 ക്ഷേത്ര ചെലവ് ചേര്‍ക്കുക
+    </h3>
+
+    <!-- Expense Type -->
+    <div>
+      <label class="text-sm font-medium text-gray-600">ചെലവ് വിഭാഗം</label>
+      <select 
+        id="expenseCategory"
+        class="w-full mt-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+
+        <option value="">-- തിരഞ്ഞെടുക്കുക --</option>
+        <option value="pooja">പൂജ സാധനങ്ങള്‍</option>
+        <option value="electricity">വൈദ്യുതി ബില്‍</option>
+        <option value="maintenance">പരിപാലനം</option>
+        <option value="salary">ശമ്പളം</option>
+        <option value="festival">ഉത്സവ ചെലവ്</option>
+        <option value="other">മറ്റ് ചെലവുകള്‍</option>
+      </select>
+    </div>
+
+    <!-- Amount -->
+    <div>
+      <label class="text-sm font-medium text-gray-600">തുക (₹)</label>
+      <input 
+        id="expenseAmount" 
+        type="number" 
+        placeholder="ഉദാ: 1500"
+        class="w-full mt-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+    </div>
+
+    <!-- Date -->
+    <div>
+      <label class="text-sm font-medium text-gray-600">തീയതി</label>
+      <input 
+        id="expenseDate" 
+        type="date"
+        class="w-full mt-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <label class="text-sm font-medium text-gray-600">കുറിപ്പ്</label>
+      <textarea 
+        id="expenseNote"
+        rows="3"
+        placeholder="ചെലവിന്റെ വിശദാംശം..."
+        class="w-full mt-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"></textarea>
+    </div>
+
+    <!-- Submit Button -->
+    <button 
+      id="addExpenseBtn"
+      class="w-full bg-red-600 text-white py-3 rounded-lg font-bold text-base 
+             hover:bg-red-700 active:scale-95 transition">
+      SAVE EXPENSE
     </button>
 
   </div>
