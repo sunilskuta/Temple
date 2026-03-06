@@ -144,24 +144,41 @@
     <main class="pt-16 pb-20">
         <div class="max-w-md mx-auto">
             <!-- Hero Image with Overlay -->
-            <div class="relative h-96 overflow-hidden">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhpDh1ppuc4Dedhw9OiofQ7OQHDNRxKoP81Q&s" 
-                     alt="Temple Architecture" 
-                     class="w-full h-full object-cover">
-                <div class="absolute inset-0 gradient-overlay flex items-center justify-center">
-                    <div class="text-center text-white px-6 animate-fade-in">
-                        <div class="mb-4 pulse-slow">
-                            <svg class="w-16 h-16 mx-auto text-amber-300" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-                                <circle cx="12" cy="12" r="4" fill="white"/>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-cinzel font-bold mb-2">സ്വാഗതം</h2>
-                        <h3 class="text-2xl font-cinzel font-bold mb-3 text-amber-300">ചിരട്ട ശാസ്താക്ഷേത്രം</h3>
-                        <p class="text-sm font-light opacity-90">പ്രാർത്ഥനയ്ക്ക് വേണ്ടിയുള്ള ഒരു പുണ്യസ്ഥലം</p>
-                    </div>
-                </div>
+<div class="relative h-96 overflow-hidden">
+
+    <!-- Images -->
+    <img id="slide1"
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhpDh1ppuc4Dedhw9OiofQ7OQHDNRxKoP81Q&s"
+        class="slide-img absolute w-full h-full object-cover transition-opacity duration-1000 opacity-100">
+
+    <img
+        src="https://images.unsplash.com/photo-1605640840605-14ac1855827b"
+        class="slide-img absolute w-full h-full object-cover transition-opacity duration-1000 opacity-0">
+
+    <img
+        src="https://images.unsplash.com/photo-1627894483216-2138af692e32"
+        class="slide-img absolute w-full h-full object-cover transition-opacity duration-1000 opacity-0">
+
+    <img
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQszWyne3Is-QZ3NSg1Ez-KK5YDR50EFMkQ2Q&s"
+        class="slide-img absolute w-full h-full object-cover transition-opacity duration-1000 opacity-0">
+
+    <!-- Overlay -->
+    <div class="absolute inset-0 gradient-overlay flex items-center justify-center">
+        <div class="text-center text-white px-6 animate-fade-in">
+            <div class="mb-4 pulse-slow">
+                <svg class="w-16 h-16 mx-auto text-amber-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                    <circle cx="12" cy="12" r="4" fill="white"/>
+                </svg>
             </div>
+            <h2 class="text-xl font-cinzel font-bold mb-2">സ്വാഗതം</h2>
+            <h3 class="text-2xl font-cinzel font-bold mb-3 text-amber-300">ചിരട്ട ശാസ്താക്ഷേത്രം</h3>
+            <p class="text-sm font-light opacity-90">പ്രാർത്ഥനയ്ക്ക് വേണ്ടിയുള്ള ഒരു പുണ്യസ്ഥലം</p>
+        </div>
+    </div>
+
+</div>
 
             <!-- Quick Actions -->
             <div class="px-4 py-6 space-y-4">
@@ -297,6 +314,20 @@
                             <p class="text-gray-600">Tholikkuzhy, Adayamon-PO, Kilimanoor. </p>
                         </div>
                     </div>
+
+<div class="flex items-start space-x-3 text-sm">
+    <svg class="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20.52 3.48A11.91 11.91 0 0012.01 0C5.37 0 .01 5.36.01 12c0 2.12.55 4.2 1.6 6.04L0 24l6.16-1.61A11.95 11.95 0 0012.01 24c6.64 0 12-5.36 12-12 0-3.2-1.25-6.2-3.49-8.52zM12.01 21.8c-1.82 0-3.6-.49-5.15-1.41l-.37-.22-3.65.95.98-3.56-.24-.37A9.76 9.76 0 012.2 12c0-5.42 4.4-9.82 9.81-9.82 2.62 0 5.08 1.02 6.93 2.88a9.73 9.73 0 012.88 6.94c0 5.42-4.4 9.8-9.81 9.8zm5.39-7.36c-.29-.15-1.72-.85-1.99-.95-.27-.1-.47-.15-.67.15-.2.29-.77.95-.95 1.15-.17.2-.35.22-.64.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.45-1.72-1.62-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.35.44-.52.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.29-1.04 1.01-1.04 2.47s1.06 2.87 1.21 3.07c.15.2 2.08 3.18 5.05 4.46.71.31 1.27.5 1.71.64.72.23 1.38.2 1.9.12.58-.09 1.72-.7 1.97-1.37.24-.67.24-1.25.17-1.37-.07-.12-.27-.2-.56-.35z"/>
+    </svg>
+    <div>
+        <p class="font-semibold text-gray-800">Temple WhatsApp Group</p>
+        <a href="https://chat.whatsapp.com/YOURGROUPLINK" target="_blank" 
+           class="text-green-600 hover:underline">
+           Join Temple WhatsApp Group
+        </a>
+    </div>
+</div>
+
                 </div>
 
                 <!-- Share Section -->
@@ -452,6 +483,61 @@
                 this.classList.add('text-purple-600');
             });
         });
+
+
+async function checkInternetAndBlock() {
+    try {
+        // Try fetching a small file to confirm connectivity
+        await fetch("https://www.google.com/favicon.ico", {
+            mode: "no-cors",
+            cache: "no-store"
+        });
+    } catch (error) {
+        document.body.innerHTML = `
+            <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-blue-200 p-6">
+                <div class="bg-white shadow-2xl rounded-2xl p-8 text-center max-w-md w-full">
+                    
+                    <div class="text-5xl mb-4">⚠</div>
+                    
+                    <h2 class="text-2xl font-bold text-red-600 mb-2">
+                        No Internet Connection
+                    </h2>
+                    
+                    <p class="text-gray-600 mb-6">
+                        Please check your network connection and try again.
+                    </p>
+                    
+                    <button onclick="location.reload()"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 
+                               text-white font-semibold py-3 px-4 
+                               rounded-xl transition duration-300">
+                        Retry
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+window.addEventListener("load", checkInternetAndBlock);
+
+
+
+
+const slides = document.querySelectorAll(".slide-img");
+let currentSlide = 0;
+
+setInterval(() => {
+
+    slides[currentSlide].classList.remove("opacity-100");
+    slides[currentSlide].classList.add("opacity-0");
+
+    currentSlide = (currentSlide + 1) % slides.length;
+
+    slides[currentSlide].classList.remove("opacity-0");
+    slides[currentSlide].classList.add("opacity-100");
+
+}, 4000); // change every 4 seconds
     </script>
 </body>
 </html>
