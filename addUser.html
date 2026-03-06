@@ -5,147 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>രജിസ്ട്രേഷൻ - ക്ഷേത്രം</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, doc, setDoc, getDocs, query, where, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyB3iBWleWNMCdQS9F0HR1wHBBtHkeMawhg",
-            authDomain: "sjpss-f504b.firebaseapp.com",
-            projectId: "sjpss-f504b",
-            storageBucket: "sjpss-f504b.firebasestorage.app",
-            messagingSenderId: "227402980311",
-            appId: "1:227402980311:web:56b580456ab6b9c6758992",
-            measurementId: "G-LZ4YP9YPN6"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Toast function
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-message');
-            toastMsg.textContent = message;
-            toast.className = `fixed top-4 left-4 right-4 md:right-6 md:left-auto md:w-96 p-4 rounded-xl shadow-2xl transform transition-all duration-300 z-50 text-white font-medium ${
-                type === 'success' ? 'bg-green-600' : 'bg-red-600'
-            }`;
-            toast.classList.remove('-translate-y-24', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('-translate-y-24', 'opacity-0');
-            }, 3200);
-        }
-
-        // Load existing user data if phone in localStorage
-        async function loadUserData() {
-            const savedPhone = localStorage.getItem('Phone');
-            if (!savedPhone) return;
-
-            try {
-                const q = query(collection(db, "Tusers"), where("phone", "==", savedPhone));
-                const querySnapshot = await getDocs(q);
-
-                if (!querySnapshot.empty) {
-                    const userDoc = querySnapshot.docs[0];
-                    const data = userDoc.data();
-                    const docId = userDoc.id;
-
-                    // Populate form
-                    document.getElementById('name').value = data.name || '';
-                    document.getElementById('address').value = data.address || '';
-                    document.getElementById('age').value = data.age || '';
-                    document.getElementById('star').value = data.star || '';
-                    document.getElementById('phone').value = data.phone || '';
-
-                    // Change button to Update mode
-                    document.getElementById('submit-btn').dataset.mode = 'update';
-                    document.getElementById('submit-btn').dataset.docid = docId;
-                    document.getElementById('btn-text').textContent = 'പരിഷ്കരിക്കുക';
-                    document.getElementById('form-title').textContent = 'വിവരങ്ങൾ പരിഷ്കരിക്കുക';
-
-                    showToast('നിലവിലുള്ള വിവരങ്ങൾ ലോഡ് ചെയ്തു', 'success');
-                }
-            } catch (err) {
-                console.error("Error loading user:", err);
-            }
-        }
-
-        // Handle form submission (create or update)
-        async function handleSubmit(event) {
-            event.preventDefault();
-
-            const submitBtn = document.getElementById('submit-btn');
-            const btnText = document.getElementById('btn-text');
-            const btnSpinner = document.getElementById('btn-spinner');
-
-            submitBtn.disabled = true;
-            btnText.textContent = 'സമർപ്പിക്കുന്നു...';
-            btnSpinner.classList.remove('hidden');
-
-            try {
-                const formData = {
-                    name: document.getElementById('name').value.trim(),
-                    address: document.getElementById('address').value.trim(),
-                    age: parseInt(document.getElementById('age').value) || 0,
-                    star: document.getElementById('star').value,
-                    phone: document.getElementById('phone').value.trim()
-                };
-
-                const phone = formData.phone;
-                if (!phone || phone.length !== 10) {
-                    throw new Error("Invalid phone number");
-                }
-
-                const mode = submitBtn.dataset.mode || 'create';
-
-                if (mode === 'update') {
-                    const docId = submitBtn.dataset.docid;
-                    const userRef = doc(db, "Tusers", docId);
-                    await updateDoc(userRef, formData);
-                    showToast('വിവരങ്ങൾ വിജയകരമായി പരിഷ്കരിച്ചു!', 'success');
-                } else {
-                    // For new registration – you can keep auto-increment or use phone as ID
-                    // Here using phone as document ID for simplicity & uniqueness
-                    await setDoc(doc(db, "Tusers", phone), formData);
-                    showToast('രജിസ്ട്രേഷൻ വിജയകരമായി പൂർത്തിയാക്കി!', 'success');
-                }
-
-                localStorage.setItem('Phone', phone);
-
-                // Optional: reset or keep filled
-                // document.getElementById('registration-form').reset();
-
-            } catch (error) {
-                console.error("Error:", error);
-                showToast('പിശക് സംഭവിച്ചു. വീണ്ടും ശ്രമിക്കുക.', 'error');
-            } finally {
-                submitBtn.disabled = false;
-                btnText.textContent = submitBtn.dataset.mode === 'update' ? 'പരിഷ്കരിക്കുക' : 'രജിസ്റ്റർ ചെയ്യുക';
-                btnSpinner.classList.add('hidden');
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('registration-form').addEventListener('submit', handleSubmit);
-            loadUserData();
-        });
-    </script>
 </head>
 <body class="bg-gradient-to-b from-amber-50 to-orange-50 min-h-screen font-sans">
-    <!-- Close Button -->
-    <button 
-        onclick="window.close()" 
-        class="fixed top-4 right-4 z-50 bg-white/80 backdrop-blur-sm text-gray-700 hover:text-orange-600 
-               p-3 rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95"
-        title="Close"
-        aria-label="Close page">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-    </button>
 
     <!-- Toast -->
     <div id="toast" class="fixed top-4 left-4 right-4 md:right-6 md:left-auto md:w-96 p-4 rounded-xl shadow-2xl -translate-y-24 opacity-0 transition-all duration-300 z-50">
@@ -240,5 +101,181 @@
             </p>
         </div>
     </div>
+
+    <!-- Devotee Registration Modal -->
+    <div id="devoteePopup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl p-6 w-96 text-center">
+            <h2 class="text-base font-semibold text-gray-800 mb-4">
+                തൊളിക്കുഴി ചിരട്ട ശാസ്താ ക്ഷേത്രത്തിലെ ഒരു ഭക്തനായി സൗജന്യമായി രജിസ്ടര്‍ ചെയ്യുവാന്‍ താല്പര്യം ഉണ്ടോ ?
+            </h2>
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="yes-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                    	ഉണ്ട് 
+                </button>
+                <button id="no-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">
+                    ഇല്ല 
+                </button>
+            </div>
+            <button id="close-popup-btn" class="mt-4 text-sm text-white hover:text-gray-100">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase + App Logic (regular script, not module) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, doc, setDoc, getDocs, query, where, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3iBWleWNMCdQS9F0HR1wHBBtHkeMawhg",
+            authDomain: "sjpss-f504b.firebaseapp.com",
+            projectId: "sjpss-f504b",
+            storageBucket: "sjpss-f504b.firebasestorage.app",
+            messagingSenderId: "227402980311",
+            appId: "1:227402980311:web:56b580456ab6b9c6758992",
+            measurementId: "G-LZ4YP9YPN6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- Toast ---
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.textContent = message;
+            toast.className = `fixed top-4 left-4 right-4 md:right-6 md:left-auto md:w-96 p-4 rounded-xl shadow-2xl transform transition-all duration-300 z-50 text-white font-medium ${
+                type === 'success' ? 'bg-green-600' : 'bg-red-600'
+            }`;
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-24', 'opacity-0');
+            }, 3200);
+        }
+
+        // --- Load existing user data ---
+        async function loadUserData() {
+            const savedPhone = localStorage.getItem('Phone');
+            if (!savedPhone) return;
+
+            try {
+                const q = query(collection(db, "Tusers"), where("phone", "==", savedPhone));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const userDoc = querySnapshot.docs[0];
+                    const data = userDoc.data();
+                    const docId = userDoc.id;
+
+                    document.getElementById('name').value = data.name || '';
+                    document.getElementById('address').value = data.address || '';
+                    document.getElementById('age').value = data.age || '';
+                    document.getElementById('star').value = data.star || '';
+                    document.getElementById('phone').value = data.phone || '';
+
+                    const submitBtn = document.getElementById('submit-btn');
+                    submitBtn.dataset.mode = 'update';
+                    submitBtn.dataset.docid = docId;
+                    document.getElementById('btn-text').textContent = 'പരിഷ്കരിക്കുക';
+                    document.getElementById('form-title').textContent = 'വിവരങ്ങൾ പരിഷ്കരിക്കുക';
+
+                    showToast('നിലവിലുള്ള വിവരങ്ങൾ ലോഡ് ചെയ്തു', 'success');
+                }
+            } catch (err) {
+                console.error("Error loading user:", err);
+            }
+        }
+
+        // --- Handle form submit ---
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+
+            // Capture mode BEFORE any async changes
+            const mode = submitBtn.dataset.mode || 'create';
+
+            submitBtn.disabled = true;
+            btnText.textContent = 'സമർപ്പിക്കുന്നു...';
+            btnSpinner.classList.remove('hidden');
+
+            try {
+                const formData = {
+                    name: document.getElementById('name').value.trim(),
+                    address: document.getElementById('address').value.trim(),
+                    age: parseInt(document.getElementById('age').value) || 0,
+                    star: document.getElementById('star').value,
+                    phone: document.getElementById('phone').value.trim()
+                };
+
+                const phone = formData.phone;
+                if (!phone || phone.length !== 10) {
+                    throw new Error("Invalid phone number");
+                }
+
+                if (mode === 'update') {
+                    const docId = submitBtn.dataset.docid;
+                    const userRef = doc(db, "Tusers", docId);
+                    await updateDoc(userRef, formData);
+                    showToast('വിവരങ്ങൾ വിജയകരമായി പരിഷ്കരിച്ചു!', 'success');
+                } else {
+                    await setDoc(doc(db, "Tusers", phone), formData);
+                    showToast('രജിസ്ട്രേഷൻ വിജയകരമായി പൂർത്തിയാക്കി!', 'success');
+
+                    // Switch to update mode after successful registration
+                    submitBtn.dataset.mode = 'update';
+                    submitBtn.dataset.docid = phone;
+                    document.getElementById('form-title').textContent = 'വിവരങ്ങൾ പരിഷ്കരിക്കുക';
+                }
+
+                localStorage.setItem('Phone', phone);
+
+            } catch (error) {
+                console.error("Error:", error);
+                showToast('പിശക് സംഭവിച്ചു. വീണ്ടും ശ്രമിക്കുക.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                // Read mode AFTER possible update above
+                btnText.textContent = submitBtn.dataset.mode === 'update' ? 'പരിഷ്കരിക്കുക' : 'രജിസ്റ്റർ ചെയ്യുക';
+                btnSpinner.classList.add('hidden');
+            }
+        }
+
+        // --- Popup controls (defined here, attached via addEventListener) ---
+        function closePopup() {
+            document.getElementById('devoteePopup').classList.add('hidden');
+        }
+
+        function continueRegister() {
+            closePopup();
+        }
+
+        function goBack() {
+             window.close();
+        }
+
+        // --- DOMContentLoaded: single entry point ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('registration-form').addEventListener('submit', handleSubmit);
+            document.getElementById('yes-btn').addEventListener('click', continueRegister);
+            document.getElementById('no-btn').addEventListener('click', goBack);
+            document.getElementById('close-popup-btn').addEventListener('click', closePopup);
+
+            // Show popup on load
+	const phone = localStorage.getItem("Phone");
+	if (!phone) {
+        	document.getElementById("devoteePopup").classList.remove("hidden");
+    	}
+          //  document.getElementById('devoteePopup').classList.remove('hidden');
+
+            // Load existing user
+            loadUserData();
+        });
+    </script>
 </body>
 </html>
