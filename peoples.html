@@ -100,6 +100,19 @@
     </style>
 </head>
 <body class="bg-gray-50">
+
+    <!-- Close Button -->
+    <button 
+        onclick="window.close()" 
+        class="fixed top-4 right-4 z-50 bg-white/80 backdrop-blur-sm text-gray-700 hover:text-orange-600 
+               p-3 rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95"
+        title="Close"
+        aria-label="Close page">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+    
     <!-- Header -->
     <div class="gradient-bg temple-pattern text-white py-8 px-4 shadow-xl">
         <div class="max-w-4xl mx-auto text-center">
@@ -315,4 +328,5 @@
         }
     </script>
 </body>
+
 </html>
