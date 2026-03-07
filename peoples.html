@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ക്ഷേത്ര പ്രമുഖർ - ചിരട്ട ശാസ്താക്ഷേത്രം</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .temple-pattern {
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        }
+        
+        .person-card {
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .person-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .image-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 4px;
+        }
+        
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            background: white;
+        }
+        
+        .skeleton {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        .role-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-bg temple-pattern text-white py-8 px-4 shadow-xl">
+        <div class="max-w-4xl mx-auto text-center">
+<div class="mb-4 flex justify-center">
+    <img 
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxEebj1c8gSMtABrzGnAIgL4mDv_9LnZZxgA&s"
+        alt="Ayyappa Swamy"
+        class="w-16 h-16 rounded-full object-cover border-2 border-yellow-300 shadow"
+    >
+</div>
+
+            <p class="text-lg opacity-90 text-red-300">ചിരട്ട ശാസ്താക്ഷേത്രം, തൊളിക്കുഴി</p>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="max-w-4xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Skeleton Cards -->
+            <div class="bg-white rounded-2xl shadow-lg p-6" v-for="i in 3">
+                <div class="flex flex-col items-center">
+                    <div class="w-32 h-32 bg-gray-200 rounded-full skeleton mb-4"></div>
+                    <div class="h-6 bg-gray-200 rounded w-3/4 mb-2 skeleton"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2 skeleton"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="max-w-4xl mx-auto px-4 py-8 hidden">
+        <div id="peopleContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- People cards will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="max-w-4xl mx-auto px-4 py-8 hidden">
+        <div class="bg-red-50 border-l-4 border-red-500 rounded-xl p-6 shadow-md">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-red-600 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                <div>
+                    <p class="text-red-800 font-medium mb-1">പിശക് സംഭവിച്ചു</p>
+                    <p class="text-sm text-red-600" id="errorMessage">Firebase കോൺഫിഗറേഷൻ ചേർക്കേണ്ടതുണ്ട്.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center py-8">
+        <p class="text-gray-600 text-sm mb-2">ഭക്തർക്ക് സകല ഐശ്വര്യങ്ങളും ഉണ്ടാകട്ടെ</p>
+        <p class="text-2xl">🪔 ഹരി ഓം 🪔</p>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+            apiKey: "AIzaSyB3iBWleWNMCdQS9F0HR1wHBBtHkeMawhg",
+            authDomain: "sjpss-f504b.firebaseapp.com",
+            projectId: "sjpss-f504b",
+            storageBucket: "sjpss-f504b.firebasestorage.app",
+            messagingSenderId: "227402980311",
+            appId: "1:227402980311:web:56b580456ab6b9c6758992",
+            measurementId: "G-LZ4YP9YPN6"
+        };
+
+        // Role translations to Malayalam
+        const roleTranslations = {
+            'priest': 'മുഖ്യ പുരോഹിതൻ',
+            'assistant_priest': 'സഹായി പുരോഹിതൻ',
+            'president': 'പ്രസിഡണ്ട്',
+            'secretary': 'സെക്രട്ടറി',
+            'treasurer': 'ട്രഷറർ',
+            'trustee': 'ട്രസ്റ്റി',
+            'committee_member': 'കമ്മിറ്റി അംഗം',
+            'vice_president': 'വൈസ് പ്രസിഡണ്ട്',
+            'joint_secretary': 'ജോയിന്റ് സെക്രട്ടറി'
+        };
+
+        // Document IDs to fetch (in priority order)
+        const documentIds = [
+            'priest',
+            'kazhakam',
+            'assistant_priest',
+            'president',
+            'vice_president',
+            'secretary',
+            'joint_secretary',
+            'treasurer',
+            'trustee'
+        ];
+
+        // Initialize Firebase
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+            showError('Firebase initialization failed. Please configure your Firebase settings.');
+        }
+
+        // Function to create person card
+        function createPersonCard(person, role) {
+            const roleDisplay = roleTranslations[role] || role;
+            
+            return `
+                <div class="person-card bg-white rounded-2xl shadow-lg p-6 shine-effect">
+                    <div class="flex flex-col items-center text-center">
+                        <!-- Profile Image -->
+                        <div class="image-wrapper w-32 h-32 mb-4">
+                            <img 
+                                src="${person.imageUrl || 'https://via.placeholder.com/150?text=No+Image'}" 
+                                alt="${person.Name}"
+                                class="profile-image"
+                                onerror="this.src='https://via.placeholder.com/150?text=No+Image'"
+                            />
+                        </div>
+                        
+                        <!-- Name -->
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            ${person.Name}
+                        </h3>
+                        
+                        <!-- Role Badge -->
+                        <div class="role-badge text-white px-4 py-2 rounded-full text-sm font-medium mb-3">
+                            ${roleDisplay}
+                        </div>
+                        
+                        <!-- Additional Info -->
+                        ${person.Phone ? `
+                            <div class="flex items-center text-gray-600 text-sm mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 15.5c-1.2 0-2.45-.2-3.57-.57a1.02 1.02 0 00-1.02.24l-2.2 2.2a15.045 15.045 0 01-6.59-6.59l2.2-2.21a.96.96 0 00.25-1A11.36 11.36 0 018.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/>
+                                </svg>
+                                <span>${person.Phone}</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${person.Email ? `
+                            <div class="flex items-center text-gray-600 text-sm">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                </svg>
+                                <span class="text-xs">${person.Email}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to show error
+        function showError(message) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        // Function to fetch and display people
+        async function fetchPeople() {
+            try {
+                const peopleContainer = document.getElementById('peopleContainer');
+                const people = [];
+
+                // Fetch all documents
+                for (const docId of documentIds) {
+                    try {
+                        const doc = await db.collection('Tofficials').doc(docId).get();
+                        if (doc.exists) {
+                            const data = doc.data();
+                            // Only add if Name field exists
+                            if (data.Name) {
+                                people.push({
+                                    role: docId,
+                                    data: data
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.warn(`Error fetching ${docId}:`, error);
+                        // Continue with other documents even if one fails
+                    }
+                }
+
+                // Check if we got any people
+                if (people.length === 0) {
+                    showError('ക്ഷേത്ര ഉദ്യോഗസ്ഥരുടെ വിവരങ്ങൾ ലഭ്യമല്ല.');
+                    return;
+                }
+
+                // Display people
+                peopleContainer.innerHTML = people
+                    .map(person => createPersonCard(person.data, person.role))
+                    .join('');
+
+                // Hide loading, show content
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error fetching people:', error);
+                showError('ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ പിശക് സംഭവിച്ചു. ദയവായി വീണ്ടും ശ്രമിക്കുക.');
+            }
+        }
+
+        // Load people when page loads
+        if (db) {
+            fetchPeople();
+        }
+    </script>
+</body>
+</html>
